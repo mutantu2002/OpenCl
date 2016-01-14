@@ -19,8 +19,8 @@ import home.mutant.dl.utils.kmeans.Kmeans;
 
 public class KMeansOpenCl2 {
 	public static final int NO_CLUSTERS = 256;
-	public static final int WORK_ITEMS = 256*120;
-	public static final int NO_ITERATIONS = 5;
+	public static final int WORK_ITEMS = 256*234;
+	public static final int NO_ITERATIONS = 50;
 	public static final int IMAGE_SIZE = 784;
 	
 	public static void main(String[] args) throws Exception {
