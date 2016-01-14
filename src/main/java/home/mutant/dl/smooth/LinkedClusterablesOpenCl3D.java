@@ -54,7 +54,7 @@ public class LinkedClusterablesOpenCl3D implements Serializable{
 		params.put("DT", dt);
 		params.put("K", K);
 		params.put("FRICTION", friction);
-		program = new Program(Program.readResource("/opencl/ElasticSmoothie.c"),params);
+		program = new Program(Program.readResource("/opencl/ElasticSmoothie3D.c"),params);
 		
 		memX = new MemoryDouble(program);
 		memX.addReadWrite(x);
@@ -94,6 +94,7 @@ public class LinkedClusterablesOpenCl3D implements Serializable{
 		for (int i=0;i<filters.clusterables.size();i++){
 			x[i]=Math.random()*200-100;
 			y[i]=Math.random()*200-100;
+			z[i]=Math.random()*200-100;
 		}
 	}
 	public void show(){

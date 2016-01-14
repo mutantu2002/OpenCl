@@ -37,7 +37,7 @@ __kernel void stepV(__global double *x, __global double *y, __global double *z, 
 			if (i==j)continue;
 			dx=lx[i]-lx[j];
 			dy=ly[i]-ly[j];
-			dy=lz[i]-lz[j];
+			dz=lz[i]-lz[j];
 			d = sqrt(dx*dx+dy*dy+dz*dz);
 			fx+=dx/d*(preDistances[i*NO_PARTICLES+j]-d)*K;
 			fy+=dy/d*(preDistances[i*NO_PARTICLES+j]-d)*K;
