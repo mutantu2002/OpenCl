@@ -1,4 +1,4 @@
-package home.mutant.dl.opencl.model;
+package home.mutant.opencl.model;
 
 import static org.jocl.CL.*;
 

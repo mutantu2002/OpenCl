@@ -1,4 +1,4 @@
-package home.mutant.dl.smooth;
+package home.mutant.opencl.smooth;
 
 import home.mutant.dl.utils.kmeans.model.ListClusterable;
 import home.mutant.dl.utils.kmeans.smooth.LinkedClusterables;

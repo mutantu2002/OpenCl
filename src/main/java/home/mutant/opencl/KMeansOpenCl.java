@@ -1,4 +1,4 @@
-package home.mutant.dl.opencl;
+package home.mutant.opencl;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -6,12 +6,12 @@ import java.util.List;
 
 import home.mutant.dl.models.Image;
 import home.mutant.dl.models.ImageDouble;
-import home.mutant.dl.opencl.model.Kernel;
-import home.mutant.dl.opencl.model.MemoryDouble;
-import home.mutant.dl.opencl.model.Program;
 import home.mutant.dl.ui.ResultFrame;
 import home.mutant.dl.utils.ImageUtils;
 import home.mutant.dl.utils.MnistDatabase;
+import home.mutant.opencl.model.Kernel;
+import home.mutant.opencl.model.MemoryDouble;
+import home.mutant.opencl.model.Program;
 
 public class KMeansOpenCl {
 	public static final int DIM_FILTER = 4;

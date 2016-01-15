@@ -1,15 +1,15 @@
-package home.mutant.dl.smooth;
+package home.mutant.opencl.smooth.threed;
 
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
-import home.mutant.dl.opencl.model.Kernel;
-import home.mutant.dl.opencl.model.MemoryDouble;
-import home.mutant.dl.opencl.model.Program;
 import home.mutant.dl.ui.ResultFrame;
 import home.mutant.dl.utils.kmeans.model.Clusterable;
 import home.mutant.dl.utils.kmeans.model.ListClusterable;
+import home.mutant.opencl.model.Kernel;
+import home.mutant.opencl.model.MemoryDouble;
+import home.mutant.opencl.model.Program;
 
 public class LinkedClusterablesOpenCl3D implements Serializable{
 	private static final long serialVersionUID = -6967038438910323276L;
@@ -121,13 +121,18 @@ public class LinkedClusterablesOpenCl3D implements Serializable{
 	
 	public void listDistances(){
 		copyDtoH();
+		double error=0;
 		memPredistances.copyDtoH();
 		int size = filters.clusterables.size();
 		for (int i=0;i<size;i++){
 			for (int j=0;j<size;j++){
-				System.out.println(Math.sqrt((x[i]-x[j])*(x[i]-x[j])+(y[i]-y[j])*(y[i]-y[j])+(z[i]-z[j])*(z[i]-z[j]))+" - "+preDistances[i*size+j]);
+				if(i==j) continue;
+				double postDist = Math.sqrt((x[i]-x[j])*(x[i]-x[j])+(y[i]-y[j])*(y[i]-y[j])+(z[i]-z[j])*(z[i]-z[j]));
+				System.out.println(postDist+" - "+preDistances[i*size+j]);
+				error+=Math.abs(postDist-preDistances[i*size+j])/preDistances[i*size+j];
 			}
 		}
+		System.out.println("Error "+error);
 	}
 	private void copyDtoH(){
 		memX.copyDtoH();

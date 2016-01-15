@@ -1,4 +1,4 @@
-package home.mutant.dl.opencl;
+package home.mutant.opencl;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -6,12 +6,12 @@ import java.util.List;
 
 import home.mutant.dl.models.Image;
 import home.mutant.dl.models.ImageFloat;
-import home.mutant.dl.opencl.model.Kernel;
-import home.mutant.dl.opencl.model.MemoryFloat;
-import home.mutant.dl.opencl.model.Program;
 import home.mutant.dl.ui.ResultFrame;
 import home.mutant.dl.utils.MnistDatabase;
 import home.mutant.dl.utils.MnistDatabase.TYPE;
+import home.mutant.opencl.model.Kernel;
+import home.mutant.opencl.model.MemoryFloat;
+import home.mutant.opencl.model.Program;
 import home.mutant.dl.utils.Utils;
 
 public class SubImageKMeansOpenCl {

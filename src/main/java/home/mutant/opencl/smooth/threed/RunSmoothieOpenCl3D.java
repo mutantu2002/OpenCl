@@ -1,8 +1,7 @@
-package home.mutant.dl.smooth;
+package home.mutant.opencl.smooth.threed;
 
 import home.mutant.dl.utils.Utils;
 import home.mutant.dl.utils.kmeans.model.ListClusterable;
-import home.mutant.dl.smooth.LinkedClusterablesOpenCl;
 
 public class RunSmoothieOpenCl3D {
 	public static final int FRAMES = 3000;
@@ -13,13 +12,12 @@ public class RunSmoothieOpenCl3D {
 		long t0 = System.currentTimeMillis();
 		for(int i=0;i<FRAMES;i++){
 			sm.stepV();
-			//if(i%1==0)
 			sm.show();
 			if(i%100==0)System.out.println(i);
 		}
 		System.out.println("FPS:" + (1000.*FRAMES/(System.currentTimeMillis()-t0)));
-		//sm.listDistances();
+		sm.listDistances();
 		sm.release();
-		Utils.save("smoothclusters4_256", sm);
+		Utils.save("smoothclusters4_256_3D", sm);
 	}
 }

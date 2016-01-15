@@ -1,4 +1,4 @@
-package home.mutant.dl.smooth;
+package home.mutant.opencl.smooth.threed;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -9,12 +9,12 @@ import home.mutant.dl.utils.kmeans.mains.RunImageKmeans;
 import home.mutant.dl.utils.kmeans.model.Clusterable;
 import home.mutant.dl.utils.kmeans.model.ListClusterable;
 import home.mutant.dl.utils.kmeans.model.SimpleClusterable;
-import home.mutant.dl.smooth.Transform2DClusterablesRunnable;
-import home.mutant.dl.smooth.LinkedClusterablesOpenCl;
 import home.mutant.dl.utils.multithreading.Launcher;
+import home.mutant.opencl.smooth.LinkedClusterablesOpenCl;
+import home.mutant.opencl.smooth.Transform2DClusterablesRunnable;
 
 
-public class RunMLImageKmeansSmoothie {
+public class Run3DMLImageKmeansSmoothie {
 	private static final int NO_THREADS = 8;
 	private static final int STRIDE = 4;
 	

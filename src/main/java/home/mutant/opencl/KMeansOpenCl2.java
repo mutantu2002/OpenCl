@@ -1,4 +1,4 @@
-package home.mutant.dl.opencl;
+package home.mutant.opencl;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -8,14 +8,14 @@ import java.util.Map;
 
 import home.mutant.dl.models.Image;
 import home.mutant.dl.models.ImageFloat;
-import home.mutant.dl.opencl.model.Kernel;
-import home.mutant.dl.opencl.model.MemoryFloat;
-import home.mutant.dl.opencl.model.MemoryInt;
-import home.mutant.dl.opencl.model.Program;
 import home.mutant.dl.ui.ResultFrame;
 import home.mutant.dl.utils.MnistDatabase;
 import home.mutant.dl.utils.MnistDatabase.TYPE;
 import home.mutant.dl.utils.kmeans.Kmeans;
+import home.mutant.opencl.model.Kernel;
+import home.mutant.opencl.model.MemoryFloat;
+import home.mutant.opencl.model.MemoryInt;
+import home.mutant.opencl.model.Program;
 
 public class KMeansOpenCl2 {
 	public static final int NO_CLUSTERS = 256;

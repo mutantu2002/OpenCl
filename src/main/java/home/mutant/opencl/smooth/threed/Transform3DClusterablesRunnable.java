@@ -1,4 +1,4 @@
-package home.mutant.dl.smooth;
+package home.mutant.opencl.smooth.threed;
 
 import java.util.List;
 
@@ -6,21 +6,21 @@ import home.mutant.dl.utils.ImageUtils;
 import home.mutant.dl.utils.kmeans.model.Clusterable;
 import home.mutant.dl.utils.kmeans.model.Clusterable2DSmoothie;
 import home.mutant.dl.utils.kmeans.model.SimpleClusterable;
-import home.mutant.dl.smooth.LinkedClusterablesOpenCl;
+import home.mutant.opencl.smooth.LinkedClusterablesOpenCl;
 
-public class Transform2DClusterablesRunnable implements Runnable{
+public class Transform3DClusterablesRunnable implements Runnable{
 	List<Clusterable> toTransform;
 	LinkedClusterablesOpenCl clusters;
 	int stride;
 	
-	public Transform2DClusterablesRunnable(List<Clusterable> toTransform, LinkedClusterablesOpenCl clusters, int stride) {
+	public Transform3DClusterablesRunnable(List<Clusterable> toTransform, LinkedClusterablesOpenCl clusters, int stride) {
 		super();
 		this.toTransform = toTransform;
 		this.clusters = clusters;
 		this.stride = stride;
 	}
 
-	public Transform2DClusterablesRunnable(List<Clusterable> toTransform, LinkedClusterablesOpenCl clusters) {
+	public Transform3DClusterablesRunnable(List<Clusterable> toTransform, LinkedClusterablesOpenCl clusters) {
 		this(toTransform, clusters,1);
 	}
 	

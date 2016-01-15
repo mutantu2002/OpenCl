@@ -1,4 +1,4 @@
-package home.mutant.dl.smooth;
+package home.mutant.opencl.smooth;
 
 import java.io.Serializable;
 
