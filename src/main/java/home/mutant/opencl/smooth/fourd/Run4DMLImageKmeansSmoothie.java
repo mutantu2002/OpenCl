@@ -1,4 +1,4 @@
-package home.mutant.opencl.smooth.threed;
+package home.mutant.opencl.smooth.fourd;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -12,7 +12,7 @@ import home.mutant.dl.utils.kmeans.model.SimpleClusterable;
 import home.mutant.dl.utils.multithreading.Launcher;
 
 
-public class Run3DMLImageKmeansSmoothie {
+public class Run4DMLImageKmeansSmoothie {
 	private static final int NO_THREADS = 8;
 	private static final int STRIDE = 4;
 	
@@ -22,7 +22,7 @@ public class Run3DMLImageKmeansSmoothie {
 		for (int i = 0; i < 60000; i++) {
 			clusterables.add(new SimpleClusterable(MnistDatabase.trainImages.get(i).getDataDouble(),MnistDatabase.trainLabels.get(i)));
 		}
-		LinkedClusterablesOpenCl3D filters = (LinkedClusterablesOpenCl3D) Utils.load("smoothclusters4_256_3D");
+		LinkedClusterablesOpenCl4D filters = (LinkedClusterablesOpenCl4D) Utils.load("smoothclusters4_400_4D");
 		System.out.println(filters.filters.clusterables.size());
 		System.out.println(filters.filters.clusterables.get(0).getWeights().length);
 		filters.showFilters();
@@ -30,7 +30,7 @@ public class Run3DMLImageKmeansSmoothie {
 		int step = clusterables.size() / NO_THREADS;
 		
 		for (int i = 0; i < NO_THREADS; i++) {
-			launcher.addRunnable(new Transform3DClusterablesRunnable(clusterables.subList(i*step, (i+1)*step), filters, STRIDE));
+			launcher.addRunnable(new Transform4DClusterablesRunnable(clusterables.subList(i*step, (i+1)*step), filters, STRIDE));
 		}
 		launcher.run();
 		ListClusterable results = new ListClusterable();
@@ -46,7 +46,7 @@ public class Run3DMLImageKmeansSmoothie {
 		step = clusterablesTest.size() / NO_THREADS;
 		
 		for (int i = 0; i < NO_THREADS; i++) {
-			launcher.addRunnable(new Transform3DClusterablesRunnable(clusterablesTest.subList(i*step, (i+1)*step), filters, STRIDE));
+			launcher.addRunnable(new Transform4DClusterablesRunnable(clusterablesTest.subList(i*step, (i+1)*step), filters, STRIDE));
 		}
 		launcher.run();
 		System.out.println("Start kmeans");

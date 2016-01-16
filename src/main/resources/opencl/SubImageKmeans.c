@@ -8,7 +8,7 @@
 __kernel void updateCenters(__global float *centers, __global float *images, __global float *updates)
 {
 	int imagesOffset = get_global_id(0)*IMAGE_SIZE;
-	int noClusters = 256;
+	int noClusters = 400;
 	
 	int updatesOffset = get_global_id(0)*(FILTER_SIZE+1)*noClusters;
 	int centersIndex=0;

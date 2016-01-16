@@ -16,7 +16,7 @@ import home.mutant.dl.utils.Utils;
 
 public class SubImageKMeansOpenCl {
 	public static final int DIM_FILTER = 4;
-	public static final int NO_CLUSTERS = 256;
+	public static final int NO_CLUSTERS = 400;
 	public static final int WORK_ITEMS = 256*39;
 	public static final int NO_ITERATIONS = 10;
 	
@@ -79,9 +79,9 @@ public class SubImageKMeansOpenCl {
 				program.finish();
 				tTotal+=System.currentTimeMillis()-t0;
 			}
-			reduceCenters.run(NO_CLUSTERS, WORK_GROUP_SIZE>NO_CLUSTERS?NO_CLUSTERS:WORK_GROUP_SIZE);
+			reduceCenters.run(NO_CLUSTERS, NO_CLUSTERS);
 			program.finish();
-			mixCenters.run(NO_CLUSTERS, WORK_GROUP_SIZE>NO_CLUSTERS?NO_CLUSTERS:WORK_GROUP_SIZE);
+			mixCenters.run(NO_CLUSTERS, NO_CLUSTERS);
 			program.finish();
 			System.out.println("Iteration "+iteration);
 		}
