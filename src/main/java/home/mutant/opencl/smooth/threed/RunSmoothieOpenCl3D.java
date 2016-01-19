@@ -4,10 +4,10 @@ import home.mutant.dl.utils.Utils;
 import home.mutant.dl.utils.kmeans.model.ListClusterable;
 
 public class RunSmoothieOpenCl3D {
-	public static final int FRAMES = 3000;
+	public static final int FRAMES = 400;
 	public static void main(String[] args) {
 		
-		ListClusterable filters = ListClusterable.load("clusters4_256");
+		ListClusterable filters = ListClusterable.load("clusters4_400");
 		LinkedClusterablesOpenCl3D sm = new LinkedClusterablesOpenCl3D(filters);
 		long t0 = System.currentTimeMillis();
 		for(int i=0;i<FRAMES;i++){
@@ -18,6 +18,6 @@ public class RunSmoothieOpenCl3D {
 		System.out.println("FPS:" + (1000.*FRAMES/(System.currentTimeMillis()-t0)));
 		sm.listDistances();
 		sm.release();
-		Utils.save("smoothclusters4_256_3D", sm);
+		Utils.save("smoothclusters4_400_3D", sm);
 	}
 }

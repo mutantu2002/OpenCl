@@ -115,7 +115,7 @@ public class LinkedClusterablesOpenCl3D implements Serializable{
 	}
 
 	public void stepV(){
-		stepV.run(filters.clusterables.size(), 256);
+		stepV.run(filters.clusterables.size(), filters.clusterables.size());
 		program.finish();
 	}
 	
@@ -128,7 +128,7 @@ public class LinkedClusterablesOpenCl3D implements Serializable{
 			for (int j=0;j<size;j++){
 				if(i==j) continue;
 				double postDist = Math.sqrt((x[i]-x[j])*(x[i]-x[j])+(y[i]-y[j])*(y[i]-y[j])+(z[i]-z[j])*(z[i]-z[j]));
-				System.out.println(postDist+" - "+preDistances[i*size+j]);
+				//System.out.println(postDist+" - "+preDistances[i*size+j]);
 				error+=Math.abs(postDist-preDistances[i*size+j])/preDistances[i*size+j];
 			}
 		}
