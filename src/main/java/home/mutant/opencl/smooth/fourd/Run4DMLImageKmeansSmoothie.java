@@ -22,7 +22,7 @@ public class Run4DMLImageKmeansSmoothie {
 		for (int i = 0; i < 60000; i++) {
 			clusterables.add(new SimpleClusterable(MnistDatabase.trainImages.get(i).getDataDouble(),MnistDatabase.trainLabels.get(i)));
 		}
-		LinkedClusterablesOpenCl4D filters = (LinkedClusterablesOpenCl4D) Utils.load("smoothclusters4_400_4D");
+		LinkedClusterablesOpenCl4D filters = (LinkedClusterablesOpenCl4D) Utils.load("smoothclusters4_256_4D");
 		System.out.println(filters.filters.clusterables.size());
 		System.out.println(filters.filters.clusterables.get(0).getWeights().length);
 		filters.showFilters();

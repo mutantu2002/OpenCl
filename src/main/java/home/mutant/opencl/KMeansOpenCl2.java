@@ -18,9 +18,9 @@ import home.mutant.opencl.model.MemoryInt;
 import home.mutant.opencl.model.Program;
 
 public class KMeansOpenCl2 {
-	public static final int NO_CLUSTERS = 256;
+	public static final int NO_CLUSTERS = 1000;
 	public static final int WORK_ITEMS = 256*234;
-	public static final int NO_ITERATIONS = 50;
+	public static final int NO_ITERATIONS = 30;
 	public static final int IMAGE_SIZE = 784;
 	
 	public static void main(String[] args) throws Exception {
@@ -106,13 +106,14 @@ public class KMeansOpenCl2 {
 			System.arraycopy(memClusters.getSrc(), i*IMAGE_SIZE, image.getDataFloat(), 0, IMAGE_SIZE);
 			imagesClusters.add(image);
 		}
-		ResultFrame frame = new ResultFrame(600, 600);
+		ResultFrame frame = new ResultFrame(1600, 800);
 		frame.showImages(imagesClusters);
-
+		System.out.println();
 	}
 
 	private static void reduceCenters(float[] images, float[] clustersCenters, int[] clustersUpdates) {
 		int[] clustersMembers = new int[NO_CLUSTERS];
+		Arrays.fill(clustersCenters, 0);
 		for (int i=0;i<WORK_ITEMS;i++){
 			int toUpdate = clustersUpdates[i];
 			clustersMembers[toUpdate]++;

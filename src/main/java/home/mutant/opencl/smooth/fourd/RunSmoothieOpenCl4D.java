@@ -4,10 +4,10 @@ import home.mutant.dl.utils.Utils;
 import home.mutant.dl.utils.kmeans.model.ListClusterable;
 
 public class RunSmoothieOpenCl4D {
-	public static final int FRAMES = 400;
+	public static final int FRAMES = 4000;
 	public static void main(String[] args) {
 		
-		ListClusterable filters = ListClusterable.load("clusters4_400");
+		ListClusterable filters = ListClusterable.load("clusters4_256");
 		LinkedClusterablesOpenCl4D sm = new LinkedClusterablesOpenCl4D(filters);
 		sm.listDistances();
 		long t0 = System.currentTimeMillis();
@@ -19,6 +19,6 @@ public class RunSmoothieOpenCl4D {
 		System.out.println("FPS:" + (1000.*FRAMES/(System.currentTimeMillis()-t0)));
 		sm.listDistances();
 		sm.release();
-		Utils.save("smoothclusters4_400_4D", sm);
+		Utils.save("smoothclusters4_256_4D", sm);
 	}
 }
