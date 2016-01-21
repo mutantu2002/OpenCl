@@ -4,7 +4,7 @@ import home.mutant.dl.utils.Utils;
 import home.mutant.dl.utils.kmeans.model.ListClusterable;
 
 public class RunSmoothieOpenCl3D {
-	public static final int FRAMES = 3000;
+	public static final int FRAMES = 4000;
 	public static void main(String[] args) {
 		
 		ListClusterable filters = ListClusterable.load("clusters4_256");

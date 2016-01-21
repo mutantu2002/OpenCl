@@ -14,7 +14,7 @@ import home.mutant.dl.utils.multithreading.Launcher;
 
 public class Run4DMLImageKmeansSmoothie {
 	private static final int NO_THREADS = 8;
-	private static final int STRIDE = 4;
+	private static final int STRIDE = 2;
 	
 	public static void main(String[] args) throws Exception {
 		MnistDatabase.loadImages();
