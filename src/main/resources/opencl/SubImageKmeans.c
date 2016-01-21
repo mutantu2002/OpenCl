@@ -8,7 +8,7 @@
 __kernel void updateCenters(__global float *centers, __global float *images, __global float *updates)
 {
 	int imagesOffset = get_global_id(0)*IMAGE_SIZE;
-	int noClusters = 400;
+	int noClusters = 256;
 	
 	int updatesOffset = get_global_id(0)*(FILTER_SIZE+1)*noClusters;
 	int centersIndex=0;
@@ -38,7 +38,7 @@ __kernel void updateCenters(__global float *centers, __global float *images, __g
 					subImageBuffer[index++] = images[imagesOffset+(imageY+filterY)+(imageX+filterX)*DIM_IMAGE];
 				}
 			}
-			min=FILTER_SIZE*1000000;
+			min=FLT_MAX;
 			minCenterIndex=0;
 			for(centersIndex=0;centersIndex<noClusters;centersIndex++)
 			{
