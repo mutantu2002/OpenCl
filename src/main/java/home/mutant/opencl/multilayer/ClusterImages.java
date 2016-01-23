@@ -67,10 +67,34 @@ public class ClusterImages {
 			memClusters.copyHtoD();
 		}
 		
-		memUpdates.copyDtoH();
 		memClusters.copyDtoH();
 		updateClustersLabels();
 		contructImageClusters();
+	}
+	public void test(List<Image> testImages, List<Integer> testLabels){
+		memImages.release();
+		memUpdates.release();
+		allImages= new float[imageSize*testImages.size()];
+		clustersUpdates = new int[testImages.size()];
+		for (int i=0;i<testImages.size();i++){
+			System.arraycopy(testImages.get(i).getDataFloat(), 0, allImages, i*(imageSize), imageSize);
+		}
+		memImages = new MemoryFloat(program);
+		memImages.addReadOnly(allImages);
+		
+		memUpdates = new MemoryInt(program);
+		memUpdates.addReadWrite(clustersUpdates);
+		updateCenters.setArgument(memImages,1);
+		updateCenters.setArgument(memUpdates,2);
+		
+		updateCenters.run(testImages.size(), 256);
+		program.finish();
+		memUpdates.copyDtoH();
+		int count=0;
+		for (int i = 0; i < clustersUpdates.length; i++) {
+			count+=clusterLabels.get(clustersUpdates[i])==testLabels.get(i)?1:0;
+		}
+		System.out.println(100.*count/testImages.size()+"%");
 	}
 	private void updateClustersLabels(){
 		List<HashMap<Integer, Integer>> clusterHash = new ArrayList<>();
@@ -86,7 +110,6 @@ public class ClusterImages {
 			}
 			currentMembers.put(currentLabel, currentMembers.get(currentLabel)+1);
 		}
-		List<Integer> clusterLabels = new ArrayList<>();
 		for (int i=0;i<noClusters;i++) {
 			clusterLabels.add(Kmeans.getMaxKeyHash(clusterHash.get(i)));
 		}
