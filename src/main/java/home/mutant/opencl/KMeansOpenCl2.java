@@ -129,7 +129,7 @@ public class KMeansOpenCl2 {
 		}
 	}
 
-	private static void randomizeCenters(float[] clustersCenters) {
+	public static void randomizeCenters(float[] clustersCenters) {
 		for (int i = 0; i < clustersCenters.length; i++) {
 			clustersCenters[i] = (float) (Math.random()*256);
 		}
