@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 
 import home.mutant.dl.models.Image;
+import home.mutant.dl.models.ImageFloat;
 import home.mutant.dl.utils.kmeans.Kmeans;
 import home.mutant.opencl.model.Kernel;
 import home.mutant.opencl.model.MemoryFloat;
@@ -69,6 +70,7 @@ public class ClusterImages {
 		memUpdates.copyDtoH();
 		memClusters.copyDtoH();
 		updateClustersLabels();
+		contructImageClusters();
 	}
 	private void updateClustersLabels(){
 		List<HashMap<Integer, Integer>> clusterHash = new ArrayList<>();
@@ -115,7 +117,7 @@ public class ClusterImages {
 		memClusters.addReadWrite(clustersCenters);
 		
 		for (int i=0;i<images.size();i++){
-			System.arraycopy(images.get(i).getDataFloat(), 0, images, i*(imageSize), imageSize);
+			System.arraycopy(images.get(i).getDataFloat(), 0, allImages, i*(imageSize), imageSize);
 		}
 		memImages = new MemoryFloat(program);
 		memImages.addReadOnly(allImages);
@@ -123,7 +125,7 @@ public class ClusterImages {
 		memUpdates = new MemoryInt(program);
 		memUpdates.addReadWrite(clustersUpdates);
 
-		Kernel updateCenters = new Kernel(program, "updateCenters");
+		updateCenters = new Kernel(program, "updateCenters");
 		updateCenters.setArgument(memClusters,0);
 		updateCenters.setArgument(memImages,1);
 		updateCenters.setArgument(memUpdates,2);
@@ -132,7 +134,7 @@ public class ClusterImages {
 		memImages.copyHtoD();
 		
 	}
-	private void releaseOpenCl(){
+	public void releaseOpenCl(){
 		memClusters.release();
 		memImages.release();
 		memUpdates.release();
@@ -140,8 +142,15 @@ public class ClusterImages {
 		program.release();
 	}
 	private void randomizeCentersFromImages(float[] clustersCenters) {
-		for (int i=0;i<clustersCenters.length;i++){
+		for (int i=0;i<noClusters;i++){
 			System.arraycopy(images.get((int) (Math.random()*images.size())).getDataFloat(), 0, clustersCenters, i*(imageSize), imageSize);
+		}
+	}
+	private void contructImageClusters(){
+		for (int i=0;i<noClusters;i++) {
+			Image image = new ImageFloat(imageSize);
+			System.arraycopy(memClusters.getSrc(), i*imageSize, image.getDataFloat(), 0, imageSize);
+			clusters.add(image);
 		}
 	}
 }
