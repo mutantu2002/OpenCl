@@ -16,9 +16,9 @@ import home.mutant.dl.utils.Utils;
 
 public class SubImageKMeansOpenCl {
 	public static final int DIM_FILTER = 4;
-	public static final int NO_CLUSTERS = 400;
+	public static final int NO_CLUSTERS = 256;
 	public static final int WORK_ITEMS = 256*39;
-	public static final int NO_ITERATIONS = 30;
+	public static final int NO_ITERATIONS = 10;
 	
 	public static final int WORK_GROUP_SIZE = 256;
 	
@@ -65,7 +65,7 @@ public class SubImageKMeansOpenCl {
 		
 		long tTotal=0;
 
-		
+		long t0 = System.currentTimeMillis();
 		for (int iteration=0;iteration<NO_ITERATIONS;iteration++){
 			Arrays.fill(clustersUpdates, 0);
 			memUpdates.copyHtoD();
@@ -73,11 +73,11 @@ public class SubImageKMeansOpenCl {
 				for (int i=0;i<WORK_ITEMS;i++){
 					System.arraycopy(MnistDatabase.trainImages.get(batch*WORK_ITEMS+i).getDataFloat(), 0, inputImages, i*(DIM_IMAGE*DIM_IMAGE), DIM_IMAGE*DIM_IMAGE);
 				}
-				long t0 = System.currentTimeMillis();
+				
 				memImages.copyHtoD();
 				updateCenters.run(WORK_ITEMS, WORK_GROUP_SIZE);
 				program.finish();
-				tTotal+=System.currentTimeMillis()-t0;
+				
 			}
 			reduceCenters.run(NO_CLUSTERS, NO_CLUSTERS);
 			program.finish();
@@ -85,6 +85,7 @@ public class SubImageKMeansOpenCl {
 			program.finish();
 			System.out.println("Iteration "+iteration);
 		}
+		tTotal+=System.currentTimeMillis()-t0;
 		memUpdates.copyDtoH();
 		double sum = 0;
 		int noZero=0;
@@ -94,7 +95,7 @@ public class SubImageKMeansOpenCl {
 		}
 		System.out.println("Threaded Clusters not assigned "+noZero);
 		System.out.println("Total updates "+sum);
-		System.out.println("Time in kernel per iteration " + tTotal/1000./NO_ITERATIONS);
+		System.out.println("Time in per iteration " + tTotal/1000./NO_ITERATIONS);
 		memClusters.copyDtoH();
 		List<Image> imgClusters = new ArrayList<Image>();
 		for (int i=0;i<NO_CLUSTERS;i++) {
