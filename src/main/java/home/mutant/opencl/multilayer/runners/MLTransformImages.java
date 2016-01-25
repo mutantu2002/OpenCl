@@ -13,12 +13,12 @@ public class MLTransformImages {
 		MnistDatabase.loadImages();
 		LinkedClusterablesOpenCl4D filters = (LinkedClusterablesOpenCl4D) Utils.load("smoothclusters4_256_4D");
 		long t0=System.currentTimeMillis();
-		TransformImages  ti = new TransformImages(MnistDatabase.trainImages.subList(0, 25600), filters,2);
+		TransformImages  ti = new TransformImages(MnistDatabase.trainImages, filters,1);
 		ti.transform();
 		long t=System.currentTimeMillis()-t0;
 		
 		ResultFrame frame = new ResultFrame(1600, 1000);
-		frame.showImages(ti.getTransformedImages().subList(0, 256),16);
+		frame.showImages(ti.getTransformedImages().subList(10000, 10256),16);
 		System.out.println(t/1000.+" sec");
 	}
 }

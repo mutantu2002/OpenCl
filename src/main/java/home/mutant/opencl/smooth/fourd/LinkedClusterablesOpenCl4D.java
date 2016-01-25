@@ -23,7 +23,7 @@ public class LinkedClusterablesOpenCl4D implements Serializable{
 	transient double[] vy;
 	transient double[] vz;
 	transient double[] vw;
-	transient double dt=0.0002;
+	transient double dt=0.002;
 	transient double K=1;
 	transient double friction=0.1;
 	

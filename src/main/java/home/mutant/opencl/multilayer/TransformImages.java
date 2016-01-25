@@ -7,7 +7,6 @@ import java.util.Map;
 
 import home.mutant.dl.models.Image;
 import home.mutant.dl.models.ImageDouble;
-import home.mutant.dl.models.ImageFloat;
 import home.mutant.opencl.model.Kernel;
 import home.mutant.opencl.model.MemoryDouble;
 import home.mutant.opencl.model.Program;
