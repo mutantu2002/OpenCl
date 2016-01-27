@@ -17,7 +17,7 @@ public class ML {
 		OneLayer ol = new OneLayer(MnistDatabase.trainImages);
 		ol.transform();
 		List<Image> testImages = ol.transform(MnistDatabase.testImages);
-		
+		System.out.println("Last layer");
 		LastLayer ll = new LastLayer(ol.getOutImages(), testImages, MnistDatabase.trainLabels, MnistDatabase.testLabels, 1000, 50);
 		ll.test();
 	}

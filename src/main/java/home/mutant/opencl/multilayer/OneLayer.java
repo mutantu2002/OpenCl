@@ -10,7 +10,7 @@ import home.mutant.opencl.multilayer.steps.TransformImages;
 public class OneLayer {
 	List<Image> inImages;
 	List<Image> outImages;
-	int frames = 4000;
+	int frames = 1000;
 	int strideTransform=2;
 	int strideFilters=1;
 	ArrangeFilters af;
@@ -35,6 +35,7 @@ public class OneLayer {
 		for(int i=0;i<frames;i++){
 			af.stepV();
 		}
+		af.copyDtoH();
 		af.release();
 		
 		System.out.println("Transform images...");
@@ -44,7 +45,7 @@ public class OneLayer {
 		
 	}
 	public List<Image> transform(List<Image> testImages){
-		TransformImages  ti = new TransformImages(inImages, af,strideTransform);
+		TransformImages  ti = new TransformImages(testImages, af,strideTransform);
 		ti.transform();
 		return ti.getTransformedImages();
 	}

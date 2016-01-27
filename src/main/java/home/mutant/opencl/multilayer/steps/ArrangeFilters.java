@@ -51,7 +51,7 @@ public class ArrangeFilters {
 		vy = new float[images.size()];
 		vz = new float[images.size()];
 		vw = new float[images.size()];
-		frame = new ResultFrame(800, 800);
+		//frame = new ResultFrame(800, 800);
 		randDistances();
 		
 		Map<String, Object> params = new HashMap<>();
@@ -151,7 +151,7 @@ public class ArrangeFilters {
 		}
 		System.out.println("Error "+error);
 	}
-	private void copyDtoH(){
+	public void copyDtoH(){
 		memX.copyDtoH();
 		memY.copyDtoH();
 		memZ.copyDtoH();
