@@ -1,4 +1,4 @@
-package home.mutant.opencl.multilayer;
+package home.mutant.opencl.multilayer.steps;
 
 import java.util.HashMap;
 import java.util.List;
