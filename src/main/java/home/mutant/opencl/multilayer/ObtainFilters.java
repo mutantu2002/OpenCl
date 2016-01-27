@@ -21,7 +21,7 @@ public class ObtainFilters {
 	int noIterations;
 	int noClusters;
 	int batchItems = 256*30;
-	
+	int stride=1;
 	float[] inputImages;
 	float[] clustersCenters;
 	float[] clustersUpdates;
@@ -34,11 +34,16 @@ public class ObtainFilters {
 	Kernel updateCenters;
 	
 	public ObtainFilters(List<Image> images, int dimFilter, int noClusters, int noIterations) {
+		this(images, dimFilter, noClusters, noIterations, 1);
+	}
+	
+	public ObtainFilters(List<Image> images, int dimFilter, int noClusters, int noIterations,int stride) {
 		super();
 		this.images = images;
 		this.dimFilter = dimFilter;
 		this.noIterations = noIterations;
 		this.noClusters = noClusters;
+		this.stride = stride;
 		this.imageSize = images.get(0).getDataFloat().length;
 		inputImages= new float[imageSize*batchItems];
 		
@@ -102,7 +107,7 @@ public class ObtainFilters {
 		params.put("NO_CLUSTERS", noClusters);
 		params.put("DIM_FILTER", dimFilter);
 		params.put("DIM_IMAGE", (int)Math.sqrt(imageSize));
-		params.put("STRIDE", 1);
+		params.put("STRIDE", stride);
 		program = new Program(Program.readResource("/opencl/SubImageKmeans2.c"),params);
 		
 		memClusters = new MemoryFloat(program);
