@@ -51,7 +51,7 @@ __kernel void updateCenters(__global float *centers, __global const float *image
 			{
 				updates[updatesOffset+minCenterIndex+index]+= subImageBuffer[index];
 			}
-			updates[updatesOffset+minCenterIndex+FILTER_SIZE]++;
+			updates[updatesOffset+minCenterIndex+FILTER_SIZE]=updates[updatesOffset+minCenterIndex+FILTER_SIZE]+1;
 		}
 	}
 }
