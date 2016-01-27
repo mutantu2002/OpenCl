@@ -11,7 +11,7 @@ import home.mutant.opencl.model.MemoryFloat;
 import home.mutant.opencl.model.Program;
 
 public class ArrangeFilters {
-	List<Image> images;
+	public List<Image> images;
 	
 	public  float preDistances[];
 	public float[] x;
@@ -22,7 +22,7 @@ public class ArrangeFilters {
 	float[] vy;
 	float[] vz;
 	float[] vw;
-	float dt=0.0002f;
+	float dt=0.0008f;
 	float K=1;
 	float friction=0.1f;
 	
