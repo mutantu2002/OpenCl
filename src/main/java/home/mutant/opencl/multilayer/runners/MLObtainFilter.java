@@ -15,7 +15,7 @@ public class MLObtainFilter {
 		MnistDatabase.IMAGE_TYPE = TYPE.FLOAT;
 		MnistDatabase.loadImages();
 		long t0=System.currentTimeMillis();
-		int noIterations=10;
+		int noIterations=30;
 		ObtainFilters  of = new ObtainFilters(MnistDatabase.trainImages, 4, 256, noIterations);
 		of.cluster();
 		long t=System.currentTimeMillis()-t0;
@@ -34,19 +34,24 @@ public class MLObtainFilter {
 		System.out.println("FPS:" + (1000.*FRAMES/(System.currentTimeMillis()-t0)));
 		af.listDistances();
 		af.release();
-		
+		int stride=2;
 		t0=System.currentTimeMillis();
-		TransformImages  ti = new TransformImages(MnistDatabase.trainImages, af,1);
+		TransformImages  ti = new TransformImages(MnistDatabase.trainImages, af,stride);
 		ti.transform();
 		t=System.currentTimeMillis()-t0;
 		
-		ResultFrame frame1 = new ResultFrame(1600, 1000);
+		ResultFrame frame1 = new ResultFrame(900, 900);
 		frame1.showImages(ti.getTransformedImages().subList(0, 256),16);
 		System.out.println(t/1000.+" sec");
 		
-		ClusterImages  ci = new ClusterImages(ti.getTransformedImages(), MnistDatabase.trainLabels, 256, 30);
+		t0=System.currentTimeMillis();
+		TransformImages  tit = new TransformImages(MnistDatabase.testImages, af,stride);
+		tit.transform();
+		t=System.currentTimeMillis()-t0;
+		
+		ClusterImages  ci = new ClusterImages(ti.getTransformedImages(), MnistDatabase.trainLabels, 4000, 50);
 		ci.cluster();
-		ci.test(MnistDatabase.testImages, MnistDatabase.testLabels);
+		ci.test(tit.getTransformedImages(), MnistDatabase.testLabels);
 		ci.releaseOpenCl();
 		
 	}
