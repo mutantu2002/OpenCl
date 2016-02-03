@@ -10,7 +10,7 @@ import home.mutant.dl.utils.MnistDatabase.TYPE;
 import home.mutant.opencl.multilayer.LastLayer;
 import home.mutant.opencl.multilayer.OneLayer;
 
-public class ML {
+public class ML2Layers {
 
 	public static void main(String[] args) throws Exception {
 		MnistDatabase.IMAGE_TYPE = TYPE.FLOAT;
@@ -18,13 +18,20 @@ public class ML {
 		OneLayer ol = new OneLayer(MnistDatabase.trainImages);
 		ol.transform();
 		List<Image> testImages = ol.transform(MnistDatabase.testImages);
-		System.out.println("Last layer");
-		ResultFrame framef = new ResultFrame(800, 800);
-		framef.showImages(ol.getFilters(), 16);
 		
 		ResultFrame frame = new ResultFrame(800, 800);
 		frame.showImages(ol.getOutImages().subList(0, 256), 16);
-		LastLayer ll = new LastLayer(ol.getOutImages(), testImages, MnistDatabase.trainLabels, MnistDatabase.testLabels, 1000, 50);
+		
+		OneLayer ol2 = new OneLayer(ol.getOutImages(),2,2,8);
+		ol2.transform();
+		testImages = ol2.transform(testImages);
+		ResultFrame framef = new ResultFrame(800, 800);
+		framef.showImages(ol2.getFilters().subList(0, 256), 16);
+		
+		System.out.println("Last layer");
+		ResultFrame frame2 = new ResultFrame(800, 800);
+		frame2.showImages(ol2.getOutImages().subList(0, 256), 16);
+		LastLayer ll = new LastLayer(ol2.getOutImages(), testImages, MnistDatabase.trainLabels, MnistDatabase.testLabels, 1000, 50);
 		ll.test();
 	}
 }

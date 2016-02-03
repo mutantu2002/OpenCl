@@ -8,7 +8,6 @@ import java.util.Map;
 
 import home.mutant.dl.models.Image;
 import home.mutant.dl.models.ImageFloat;
-import home.mutant.dl.utils.MnistDatabase;
 import home.mutant.opencl.model.Kernel;
 import home.mutant.opencl.model.MemoryFloat;
 import home.mutant.opencl.model.Program;
@@ -58,10 +57,10 @@ public class ObtainFilters {
 			memUpdates.copyHtoD();
 			for (int batch=0 ;batch<images.size()/batchItems;batch++){
 				for (int i=0;i<batchItems;i++){
-					System.arraycopy(MnistDatabase.trainImages.get(batch*batchItems+i).getDataFloat(), 0, inputImages, i*imageSize, imageSize);
+					System.arraycopy(images.get(batch*batchItems+i).getDataFloat(), 0, inputImages, i*imageSize, imageSize);
 				}
 				memImages.copyHtoD();
-				updateCenters.run(batchItems, 256);
+				updateCenters.run(batchItems, 512);
 				program.finish();
 			}
 			System.out.println(iteration);
@@ -99,7 +98,35 @@ public class ObtainFilters {
 			clustersCenters[i] = (float) (Math.random()*256);
 		}
 	}
-	
+	private void randomizeClusters2() {
+		List<Image> filters = new ArrayList<>();
+		int dimImage = (int)Math.sqrt(imageSize);
+		while(filters.size()<noClusters) {
+			Image initCluster = images.get((int) (Math.random()*images.size()));
+			int x=(int) (Math.random()*(dimImage-dimFilter));
+			int y=(int) (Math.random()*(dimImage-dimFilter));
+			Image filter = initCluster.extractImage(x, y, dimFilter, dimFilter);
+			if (okToAdd(filters, filter)){
+				filters.add(filter);
+			}
+		}
+		for (int i = 0; i < noClusters; i++) {
+			System.arraycopy(filters.get(i).getDataFloat(), 0, clustersCenters, i*dimFilter*dimFilter, dimFilter*dimFilter);
+		}
+	}
+	private boolean okToAdd(List<Image> filters, Image newFilter){
+		for (Image image : filters) {
+			if(d(image,newFilter)<10) return false;
+		}
+		return true;
+	}
+	private float d(Image i1, Image i2){
+		double d=0;
+		for (int i = 0; i < i1.getDataFloat().length; i++) {
+			d+=(i1.getDataFloat()[i] - i2.getDataFloat()[i])*(i1.getDataFloat()[i] - i2.getDataFloat()[i]);
+		}
+		return (float) Math.sqrt(d);
+	}
 	private void prepareOpenCl(){
 		Map<String, Object> params = new HashMap<>();
 		params.put("IMAGE_SIZE", imageSize);

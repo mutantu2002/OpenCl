@@ -38,7 +38,7 @@ __kernel void updateCenters(__global float *centers, __global const float *image
 				for(index=0;index<FILTER_SIZE;index++)
 				{
 					weight = centers[centersIndex*FILTER_SIZE+index]-subImageBuffer[index];
-					sum = sum+weight*weight;
+					sum +=weight*weight;
 				}
 				if (sum<min)
 				{
@@ -51,7 +51,7 @@ __kernel void updateCenters(__global float *centers, __global const float *image
 			{
 				updates[updatesOffset+minCenterIndex+index]+= subImageBuffer[index];
 			}
-			updates[updatesOffset+minCenterIndex+FILTER_SIZE]=updates[updatesOffset+minCenterIndex+FILTER_SIZE]+1;
+			updates[updatesOffset+minCenterIndex+FILTER_SIZE]+=1;
 		}
 	}
 }

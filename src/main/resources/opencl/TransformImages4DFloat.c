@@ -49,10 +49,10 @@ __kernel void transform(__global float const *images,__global float *filters,__g
 					minCenterIndex = centersIndex;
 				}
 			}
-			transformedImages[transImagesOffset+2*transY+(2*transX)*transDimImage]=x[minCenterIndex]+100;
-			transformedImages[transImagesOffset+2*transY+1+(2*transX)*transDimImage]=y[minCenterIndex]+100;
-			transformedImages[transImagesOffset+2*transY+(2*transX+1)*transDimImage]=z[minCenterIndex]+100;
-			transformedImages[transImagesOffset+2*transY+1+(2*transX+1)*transDimImage]=w[minCenterIndex]+100;
+			transformedImages[transImagesOffset+2*transY+(2*transX)*transDimImage]=x[minCenterIndex]+150;
+			transformedImages[transImagesOffset+2*transY+1+(2*transX)*transDimImage]=y[minCenterIndex]+150;
+			transformedImages[transImagesOffset+2*transY+(2*transX+1)*transDimImage]=z[minCenterIndex]+150;
+			transformedImages[transImagesOffset+2*transY+1+(2*transX+1)*transDimImage]=w[minCenterIndex]+150;
 			transY++;
 		}
 		transX++;

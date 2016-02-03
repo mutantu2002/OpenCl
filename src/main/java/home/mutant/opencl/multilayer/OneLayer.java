@@ -13,6 +13,8 @@ public class OneLayer {
 	int frames = 1000;
 	int strideTransform=2;
 	int strideFilters=1;
+	int dimFilter=4;
+	
 	ArrangeFilters af;
 	
 	public OneLayer(List<Image> inImages) {
@@ -25,15 +27,23 @@ public class OneLayer {
 		this.strideTransform = strideTransform;
 		this.strideFilters = strideFilters;
 	}
+	public OneLayer(List<Image> inImages, int strideTransform, int strideFilters, int dimFilter) {
+		super();
+		this.inImages = inImages;
+		this.strideTransform = strideTransform;
+		this.strideFilters = strideFilters;
+		this.dimFilter = dimFilter;
+	}
 	public void transform(){
 		System.out.println("Obtain filters...");
-		ObtainFilters  of = new ObtainFilters(inImages, 4, 256, 40, strideFilters);
+		ObtainFilters  of = new ObtainFilters(inImages, dimFilter, 256, 40, strideFilters);
 		of.cluster();
 		
 		System.out.println("Arrange filters...");
 		af = new ArrangeFilters(of.getClusterImages());
 		for(int i=0;i<frames;i++){
 			af.stepV();
+			af.show();
 		}
 		af.copyDtoH();
 		af.release();
@@ -51,6 +61,9 @@ public class OneLayer {
 	}
 	public List<Image> getOutImages() {
 		return outImages;
+	}
+	public List<Image> getFilters() {
+		return af.images;
 	}
 	
 }

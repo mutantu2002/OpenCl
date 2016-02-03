@@ -51,7 +51,7 @@ public class ArrangeFilters {
 		vy = new float[images.size()];
 		vz = new float[images.size()];
 		vw = new float[images.size()];
-		//frame = new ResultFrame(800, 800);
+		frame = new ResultFrame(800, 800);
 		randDistances();
 		
 		Map<String, Object> params = new HashMap<>();
@@ -111,10 +111,10 @@ public class ArrangeFilters {
 	}
 	private void randDistances(){
 		for (int i=0;i<images.size();i++){
-			x[i]=(float) (Math.random()*200-100);
-			y[i]=(float) (Math.random()*200-100);
-			z[i]=(float) (Math.random()*200-100);
-			w[i]=(float) (Math.random()*200-100);
+			x[i]=(float) (Math.random()*300-150);
+			y[i]=(float) (Math.random()*300-150);
+			z[i]=(float) (Math.random()*300-150);
+			w[i]=(float) (Math.random()*300-150);
 		}
 	}
 	public void show(){
