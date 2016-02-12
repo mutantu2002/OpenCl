@@ -26,6 +26,7 @@ public class ArrangeFilters {
 	float K=1;
 	float friction=0.1f;
 	
+	int scaleDistances=4;
 	ResultFrame frame;
 	private  MemoryFloat memX;
 	private  MemoryFloat memY;
@@ -40,8 +41,12 @@ public class ArrangeFilters {
 	private  Program program;
 	
 	public ArrangeFilters(List<Image> images) {
+		this(images,4);
+	}
+	public ArrangeFilters(List<Image> images, int scaleDistances) {
 		super();
 		this.images = images;
+		this.scaleDistances = scaleDistances;
 		fillPreDistances();
 		x = new float[images.size()];
 		y = new float[images.size()];
@@ -59,7 +64,8 @@ public class ArrangeFilters {
 		params.put("DT", dt);
 		params.put("K", K);
 		params.put("FRICTION", friction);
-		program = new Program(Program.readResource("/opencl/ElasticSmoothie4DFloat.c"),params);
+		params.put("BATCH", images.size()/256);
+		program = new Program(Program.readResource("/opencl/ElasticSmoothieBatch4DFloat.c"),params);
 		
 		memX = new MemoryFloat(program);
 		memX.addReadWrite(x);
@@ -97,7 +103,7 @@ public class ArrangeFilters {
 		preDistances = new float[size*size];
 		for (int i=0;i<size;i++){
 			for (int j=0;j<size;j++){
-				preDistances[i*size+j]=d(images.get(i),images.get(j))/5;
+				preDistances[i*size+j]=(float) (1.2*d(images.get(i),images.get(j))/scaleDistances);
 			}
 		}
 	}
@@ -132,7 +138,7 @@ public class ArrangeFilters {
 	}
 
 	public void stepV(){
-		stepV.run(images.size(), images.size());
+		stepV.run(256, 256);
 		program.finish();
 	}
 	

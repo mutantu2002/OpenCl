@@ -14,6 +14,7 @@ public class OneLayer {
 	int strideTransform=2;
 	int strideFilters=1;
 	int dimFilter=4;
+	int scaleDistances=4;
 	
 	ArrangeFilters af;
 	
@@ -27,24 +28,27 @@ public class OneLayer {
 		this.strideTransform = strideTransform;
 		this.strideFilters = strideFilters;
 	}
-	public OneLayer(List<Image> inImages, int strideTransform, int strideFilters, int dimFilter) {
+	public OneLayer(List<Image> inImages, int strideTransform, int strideFilters, int dimFilter, int scaleDistances) {
 		super();
 		this.inImages = inImages;
 		this.strideTransform = strideTransform;
 		this.strideFilters = strideFilters;
 		this.dimFilter = dimFilter;
+		this.scaleDistances = scaleDistances;
 	}
 	public void transform(){
 		System.out.println("Obtain filters...");
-		ObtainFilters  of = new ObtainFilters(inImages, dimFilter, 256, 40, strideFilters);
+		ObtainFilters  of = new ObtainFilters(inImages, dimFilter, 1024, 10, strideFilters);
 		of.cluster();
 		
 		System.out.println("Arrange filters...");
-		af = new ArrangeFilters(of.getClusterImages());
+		af = new ArrangeFilters(of.getClusterImages(),scaleDistances);
+		long t0 = System.currentTimeMillis();
 		for(int i=0;i<frames;i++){
 			af.stepV();
 			af.show();
 		}
+		System.out.println("FPS:" + (1000.*frames/(System.currentTimeMillis()-t0)));
 		af.copyDtoH();
 		af.release();
 		

@@ -47,7 +47,7 @@ public class ObtainFilters {
 		inputImages= new float[imageSize*batchItems];
 		
 		clustersCenters = new float[dimFilter*dimFilter*noClusters];
-		randomizeClusters();
+		randomizeClusters2();
 		clustersUpdates = new float[(dimFilter*dimFilter+1)*noClusters*batchItems];
 	}
 	public void cluster(){
@@ -60,7 +60,7 @@ public class ObtainFilters {
 					System.arraycopy(images.get(batch*batchItems+i).getDataFloat(), 0, inputImages, i*imageSize, imageSize);
 				}
 				memImages.copyHtoD();
-				updateCenters.run(batchItems, 512);
+				updateCenters.run(batchItems, 256);
 				program.finish();
 			}
 			System.out.println(iteration);
@@ -103,8 +103,8 @@ public class ObtainFilters {
 		int dimImage = (int)Math.sqrt(imageSize);
 		while(filters.size()<noClusters) {
 			Image initCluster = images.get((int) (Math.random()*images.size()));
-			int x=(int) (Math.random()*(dimImage-dimFilter));
-			int y=(int) (Math.random()*(dimImage-dimFilter));
+			int x=stride*((int) (Math.random()*((dimImage-dimFilter)/stride)));
+			int y=stride*((int) (Math.random()*((dimImage-dimFilter)/stride)));
 			Image filter = initCluster.extractImage(x, y, dimFilter, dimFilter);
 			if (okToAdd(filters, filter)){
 				filters.add(filter);

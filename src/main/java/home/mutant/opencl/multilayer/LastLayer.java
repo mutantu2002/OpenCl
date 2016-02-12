@@ -23,10 +23,11 @@ public class LastLayer {
 		this.noClusters = noClusters;
 		this.noIterations = noIterations;
 	}
-	public void test(){
+	public List<Image> test(){
 		ClusterImages  ci = new ClusterImages(trainImages, trainLabels, noClusters, noIterations);
 		ci.cluster();
 		ci.test(testImages, testLabels);
 		ci.releaseOpenCl();
+		return ci.getClusters();
 	}
 }
