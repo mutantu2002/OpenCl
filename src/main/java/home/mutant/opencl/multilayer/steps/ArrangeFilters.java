@@ -22,7 +22,7 @@ public class ArrangeFilters {
 	float[] vy;
 	float[] vz;
 	float[] vw;
-	float dt=0.0008f;
+	float dt=0.001f;
 	float K=1;
 	float friction=0.1f;
 	
@@ -103,7 +103,7 @@ public class ArrangeFilters {
 		preDistances = new float[size*size];
 		for (int i=0;i<size;i++){
 			for (int j=0;j<size;j++){
-				preDistances[i*size+j]=(float) (1.2*d(images.get(i),images.get(j))/scaleDistances);
+				preDistances[i*size+j]=(float) (d(images.get(i),images.get(j))/scaleDistances);
 			}
 		}
 	}
@@ -137,6 +137,13 @@ public class ArrangeFilters {
 		frame.repaint();
 	}
 
+	public double getMediumV(){
+		double v=0;
+		for (int i=0;i<images.size();i++){
+			v+=Math.sqrt(vx[i]*vx[i]+vy[i]*vy[i]+vz[i]*vz[i]+vw[i]*vw[i]);
+		}
+		return v/images.size();
+	}
 	public void stepV(){
 		stepV.run(256, 256);
 		program.finish();

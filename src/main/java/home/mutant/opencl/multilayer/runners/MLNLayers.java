@@ -14,16 +14,16 @@ public class MLNLayers {
 
 	public static void main(String[] args) throws Exception {
 		MnistDatabase.IMAGE_TYPE = TYPE.FLOAT;
-		MnistDatabase.loadImagesPadded(10);
-		OneLayer ol = new OneLayer(MnistDatabase.trainImages,2,1,3,3);
+		MnistDatabase.loadImagesPadded(6);
+		OneLayer ol = new OneLayer(MnistDatabase.trainImages,1024,2,1,3,3);
 		ol.transform();
 		List<Image> testImages = ol.transform(MnistDatabase.testImages);
 		
 		ResultFrame frame = new ResultFrame(800, 800);
 		frame.showImages(ol.getOutImages().subList(0, 256), 16);
 		
-		for(int l=0;l<4;l++){
-			OneLayer ol2 = new OneLayer(ol.getOutImages(),2,2,6,3);
+		for(int l=0;l<6;l++){
+			OneLayer ol2 = new OneLayer(ol.getOutImages(),1024,2,2,4,2);
 			ol2.transform();
 			testImages = ol2.transform(testImages);
 			ol=ol2;
@@ -32,7 +32,7 @@ public class MLNLayers {
 		System.out.println("Last layer");
 		ResultFrame frame2 = new ResultFrame(800, 800);
 		frame2.showImages(ol.getOutImages().subList(0, 256), 16);
-		LastLayer ll = new LastLayer(ol.getOutImages(), testImages, MnistDatabase.trainLabels, MnistDatabase.testLabels, 1000, 50);
+		LastLayer ll = new LastLayer(ol.getOutImages(), testImages, MnistDatabase.trainLabels, MnistDatabase.testLabels, 2000, 50);
 		ll.test();
 	}
 }

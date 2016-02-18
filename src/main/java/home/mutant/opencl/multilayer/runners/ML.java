@@ -15,7 +15,7 @@ public class ML {
 	public static void main(String[] args) throws Exception {
 		MnistDatabase.IMAGE_TYPE = TYPE.FLOAT;
 		MnistDatabase.loadImages();
-		OneLayer ol = new OneLayer(MnistDatabase.trainImages,2,1,3,3);
+		OneLayer ol = new OneLayer(MnistDatabase.trainImages,1024,2,1,3,3);
 		ol.transform();
 		List<Image> testImages = ol.transform(MnistDatabase.testImages);
 		System.out.println("Last layer");

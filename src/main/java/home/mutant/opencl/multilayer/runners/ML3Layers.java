@@ -15,20 +15,20 @@ public class ML3Layers {
 	public static void main(String[] args) throws Exception {
 		MnistDatabase.IMAGE_TYPE = TYPE.FLOAT;
 		MnistDatabase.loadImages();
-		OneLayer ol = new OneLayer(MnistDatabase.trainImages,1,1,2,2);
+		OneLayer ol = new OneLayer(MnistDatabase.trainImages,1024,2,1,3,3);
 		ol.transform();
 		List<Image> testImages = ol.transform(MnistDatabase.testImages);
 		
 		ResultFrame frame = new ResultFrame(800, 800);
 		frame.showImages(ol.getOutImages().subList(0, 256), 16);
 		
-		OneLayer ol2 = new OneLayer(ol.getOutImages(),2,2,4,2);
+		OneLayer ol2 = new OneLayer(ol.getOutImages(),1024,4,2,6,3);
 		ol2.transform();
 		testImages = ol2.transform(testImages);
 		ResultFrame framef = new ResultFrame(800, 800);
 		framef.showImages(ol2.getFilters().subList(0, 256), 16);
 	
-		OneLayer ol3 = new OneLayer(ol2.getOutImages(),2,2,4,2);
+		OneLayer ol3 = new OneLayer(ol2.getOutImages(),2048,4,2,6,3);
 		ol3.transform();
 		testImages = ol3.transform(testImages);
 		ResultFrame framef3 = new ResultFrame(800, 800);

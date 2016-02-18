@@ -41,7 +41,7 @@ __kernel void stepV(__global float *x, __global float *y, __global float *z, __g
 
 	barrier(CLK_LOCAL_MEM_FENCE);
 
-	for (f=0;f<150;f++)
+	for (f=0;f<1000;f++)
 	{
 		for (batch=0;batch<BATCH;batch++)
 		{

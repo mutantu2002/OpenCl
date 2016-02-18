@@ -14,7 +14,7 @@ public class ML2Layers {
 
 	public static void main(String[] args) throws Exception {
 		MnistDatabase.IMAGE_TYPE = TYPE.FLOAT;
-		MnistDatabase.loadImages();
+		MnistDatabase.loadImagesPadded(4);;
 		OneLayer ol = new OneLayer(MnistDatabase.trainImages);
 		ol.transform();
 		List<Image> testImages = ol.transform(MnistDatabase.testImages);
@@ -22,7 +22,7 @@ public class ML2Layers {
 		ResultFrame frame = new ResultFrame(800, 800);
 		frame.showImages(ol.getOutImages().subList(0, 256), 16);
 		
-		OneLayer ol2 = new OneLayer(ol.getOutImages(),2,2,8,2);
+		OneLayer ol2 = new OneLayer(ol.getOutImages(),1024,4,2,4,2);
 		ol2.transform();
 		testImages = ol2.transform(testImages);
 		ResultFrame framef = new ResultFrame(800, 800);
@@ -31,7 +31,7 @@ public class ML2Layers {
 		System.out.println("Last layer");
 		ResultFrame frame2 = new ResultFrame(800, 800);
 		frame2.showImages(ol2.getOutImages().subList(0, 256), 16);
-		LastLayer ll = new LastLayer(ol2.getOutImages(), testImages, MnistDatabase.trainLabels, MnistDatabase.testLabels, 1000, 50);
+		LastLayer ll = new LastLayer(ol2.getOutImages(), testImages, MnistDatabase.trainLabels, MnistDatabase.testLabels, 2000, 50);
 		ll.test();
 	}
 }
