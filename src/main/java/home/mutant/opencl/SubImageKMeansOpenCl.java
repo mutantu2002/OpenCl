@@ -15,19 +15,19 @@ import home.mutant.opencl.model.Program;
 import home.mutant.dl.utils.Utils;
 
 public class SubImageKMeansOpenCl {
-	public static final int DIM_FILTER = 4;
-	public static final int NO_CLUSTERS = 256;
-	public static final int WORK_ITEMS = 256*39;
+	public static final int DIM_FILTER = 16;
+	public static final int NO_CLUSTERS = 64;
+	public static final int WORK_ITEMS = 10000;
 	public static final int NO_ITERATIONS = 10;
 	
 	public static final int WORK_GROUP_SIZE = 256;
 	
-	public static final int DIM_IMAGE = 28;
+	public static final int DIM_IMAGE = 28*3;
 	public static final int NO_MNIST_IMAGES = 60000;
 	
 	public static void main(String[] args) throws Exception {
 		MnistDatabase.IMAGE_TYPE = TYPE.FLOAT;
-		MnistDatabase.loadImages();
+		MnistDatabase.loadImagesPadded(28);
 		float[] inputImages= new float[(DIM_IMAGE*DIM_IMAGE)*WORK_ITEMS];
 		
 		float[] clustersCenters = new float[DIM_FILTER*DIM_FILTER*NO_CLUSTERS];
@@ -53,15 +53,11 @@ public class SubImageKMeansOpenCl {
 		
 		Kernel reduceCenters = new Kernel(program, "reduceCenters");
 		reduceCenters.setArguments(memUpdates);
-		reduceCenters.setArgument(DIM_FILTER,1);
-		reduceCenters.setArgument(NO_CLUSTERS,2);
-		reduceCenters.setArgument(WORK_ITEMS,3);
 		
 		int dimNoClusters = (int) Math.sqrt(NO_CLUSTERS);
-		Kernel mixCenters = new Kernel(program, "mixCenters");
+		Kernel mixCenters = new Kernel(program, "mixCenters2D");
 		mixCenters.setArguments(memClusters, memUpdates);
-		mixCenters.setArgument(DIM_FILTER,2);
-		mixCenters.setArgument(dimNoClusters,3);
+		mixCenters.setArgument(dimNoClusters,2);
 		
 		long tTotal=0;
 
@@ -79,10 +75,13 @@ public class SubImageKMeansOpenCl {
 				program.finish();
 				
 			}
-			reduceCenters.run(NO_CLUSTERS, NO_CLUSTERS);
-			program.finish();
-			mixCenters.run(NO_CLUSTERS, NO_CLUSTERS);
-			program.finish();
+			memUpdates.copyDtoH();
+			reduceCenters(clustersCenters, clustersUpdates);
+			memClusters.copyHtoD();
+			//reduceCenters.run(NO_CLUSTERS, NO_CLUSTERS);
+			//program.finish();
+			//mixCenters.run(NO_CLUSTERS, NO_CLUSTERS);
+			//program.finish();
 			System.out.println("Iteration "+iteration);
 		}
 		tTotal+=System.currentTimeMillis()-t0;
@@ -115,5 +114,46 @@ public class SubImageKMeansOpenCl {
 		reduceCenters.release();
 		mixCenters.release();
 		program.release();
+	}
+	private static void reduceCenters(float[] clustersCenters, float[] clustersUpdates) {
+		int filterSize=DIM_FILTER*DIM_FILTER;
+		Arrays.fill(clustersCenters, 0);
+		for (int i=0;i<NO_CLUSTERS;i++){
+			int noUpdates=0;
+			int clusterOffset = filterSize*i;
+			for (int batch=0;batch<WORK_ITEMS;batch++){
+				int batchClusterOffset = (filterSize+1)*(batch*NO_CLUSTERS+i);
+				for(int j=0;j<filterSize;j++){
+					clustersCenters[clusterOffset+j]+=clustersUpdates[batchClusterOffset+j];
+				}
+				noUpdates+=clustersUpdates[batchClusterOffset+filterSize];
+			}
+			if (noUpdates>0){
+				for(int j=0;j<filterSize;j++){
+					clustersCenters[clusterOffset+j]/=noUpdates;
+				}
+			}
+		}
+		int dimNoClusters=8;
+		float influence=2f;
+		for (int i=0;i<NO_CLUSTERS;i++){
+			int offsetCenterX=i%dimNoClusters;
+			int offsetCenterY=i/dimNoClusters;
+			
+			int offsetCenterX1=(offsetCenterX+1)%dimNoClusters;
+			int offsetCenterY1=(offsetCenterY+1)%dimNoClusters;
+			int offsetCenterX_1=(offsetCenterX+dimNoClusters-1)%dimNoClusters;
+			int offsetCenterY_1=(offsetCenterY+dimNoClusters-1)%dimNoClusters;
+			int clusterOffset = filterSize*i;
+			for(int j=0;j<filterSize;j++){
+				clustersUpdates[clusterOffset+j]=influence*clustersCenters[clusterOffset+j];
+				clustersUpdates[clusterOffset+j]+=clustersCenters[(offsetCenterY*dimNoClusters+offsetCenterX1)*filterSize+j];
+				clustersUpdates[clusterOffset+j]+=clustersCenters[(offsetCenterY*dimNoClusters+offsetCenterX_1)*filterSize+j];
+				clustersUpdates[clusterOffset+j]+=clustersCenters[(offsetCenterY1*dimNoClusters+offsetCenterX)*filterSize+j];
+				clustersUpdates[clusterOffset+j]+=clustersCenters[(offsetCenterY_1*dimNoClusters+offsetCenterX)*filterSize+j];
+				clustersUpdates[clusterOffset+j]/=influence+4;
+			}
+		}
+		System.arraycopy(clustersUpdates, 0, clustersCenters, 0,  filterSize*NO_CLUSTERS);
 	}
 }

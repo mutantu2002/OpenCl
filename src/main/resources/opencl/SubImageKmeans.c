@@ -1,16 +1,18 @@
-#define DIM_FILTER  4
-
-#define DIM_IMAGE  28
-#define IMAGE_SIZE  784
+#define DIM_FILTER  16
+#define NO_CLUSTERS 64
+#define DIM_IMAGE  84
+#define IMAGE_SIZE  7056
 #define FILTER_SIZE  (DIM_FILTER*DIM_FILTER)
 
 #define INFLUENCE 1
+#define STRIDE 8
+#define WORK_ITEMS 256*39
+
 __kernel void updateCenters(__global float *centers, __global float *images, __global float *updates)
 {
 	int imagesOffset = get_global_id(0)*IMAGE_SIZE;
-	int noClusters = 256;
 	
-	int updatesOffset = get_global_id(0)*(FILTER_SIZE+1)*noClusters;
+	int updatesOffset = get_global_id(0)*(FILTER_SIZE+1)*NO_CLUSTERS;
 	int centersIndex=0;
 	
 	float sum=0;
@@ -26,9 +28,9 @@ __kernel void updateCenters(__global float *centers, __global float *images, __g
 	
 	float subImageBuffer[FILTER_SIZE];
 
-	for(imageX=0;imageX<=DIM_IMAGE-DIM_FILTER;imageX++)
+	for(imageX=0;imageX<=DIM_IMAGE-DIM_FILTER;imageX+=STRIDE)
 	{
-		for(imageY=0;imageY<=DIM_IMAGE-DIM_FILTER;imageY++)
+		for(imageY=0;imageY<=DIM_IMAGE-DIM_FILTER;imageY+=STRIDE)
 		{
 			index=0;
 			for(filterX=0;filterX<DIM_FILTER;filterX++)
@@ -40,7 +42,7 @@ __kernel void updateCenters(__global float *centers, __global float *images, __g
 			}
 			min=FLT_MAX;
 			minCenterIndex=0;
-			for(centersIndex=0;centersIndex<noClusters;centersIndex++)
+			for(centersIndex=0;centersIndex<NO_CLUSTERS;centersIndex++)
 			{
 				sum = 0;
 				for(index=0;index<FILTER_SIZE;index++)
@@ -57,60 +59,43 @@ __kernel void updateCenters(__global float *centers, __global float *images, __g
 			minCenterIndex = (FILTER_SIZE+1)*minCenterIndex;
 			for(index=0;index<FILTER_SIZE;index++)
 			{
-				updates[updatesOffset+minCenterIndex+index] = updates[updatesOffset+minCenterIndex+index]+subImageBuffer[index];
+				updates[updatesOffset+minCenterIndex+index]+= subImageBuffer[index];
 			}
-			updates[updatesOffset+minCenterIndex+FILTER_SIZE] = updates[updatesOffset+minCenterIndex+FILTER_SIZE]+1;
+			updates[updatesOffset+minCenterIndex+FILTER_SIZE]+= 1;
 		}
 	}
 }
 
-__kernel void reduceCenters(__global float *updates, const int dimFilter,const int noClusters, const int workItems)
+__kernel void reduceCenters(__global float *updates)
 {
 	int offsetCenter = get_global_id(0);
 	int indexWorkItem=0;
-	int filterSize=dimFilter*dimFilter;
 	
 	float centerBuffer[FILTER_SIZE+1];
 	int centerIndex;
-	for(centerIndex=0;centerIndex<filterSize+1;centerIndex++)
+	for(centerIndex=0;centerIndex<FILTER_SIZE+1;centerIndex++)
 	{
 		centerBuffer[centerIndex]=0;
 	}
-	for(indexWorkItem=0;indexWorkItem<workItems;indexWorkItem++)
+	for(indexWorkItem=0;indexWorkItem<WORK_ITEMS;indexWorkItem++)
 	{
-		for(centerIndex=0;centerIndex<filterSize+1;centerIndex++)
+		for(centerIndex=0;centerIndex<FILTER_SIZE+1;centerIndex++)
 		{
-			centerBuffer[centerIndex]=centerBuffer[centerIndex]+updates[(indexWorkItem*noClusters+offsetCenter)*(filterSize+1)+centerIndex];
+			centerBuffer[centerIndex]=centerBuffer[centerIndex]+updates[(indexWorkItem*NO_CLUSTERS+offsetCenter)*(FILTER_SIZE+1)+centerIndex];
 		}
 	}
-	if (centerBuffer[filterSize]>0)
+	if (centerBuffer[FILTER_SIZE]>0)
 	{
-		for(centerIndex=0;centerIndex<filterSize;centerIndex++)
+		for(centerIndex=0;centerIndex<FILTER_SIZE;centerIndex++)
 		{
-			updates[offsetCenter*(filterSize+1)+centerIndex]=centerBuffer[centerIndex]/centerBuffer[filterSize];
+			updates[offsetCenter*(FILTER_SIZE+1)+centerIndex]=centerBuffer[centerIndex]/centerBuffer[FILTER_SIZE];
 		}
 	}
 }
 
-__kernel void mixCenters(__global float *centers,  __global float *updates, const int dimFilter, const int noClusters)
+__kernel void mixCenters2D(__global float *centers,  __global float *updates, const int dimNoClusters)
 {
 	int offsetCenter = get_global_id(0);
-	int filterSize=dimFilter*dimFilter;
-	int centerIndex;
-	float noMean=1;
-	float influence=0;
-
-	for(centerIndex=0;centerIndex<filterSize;centerIndex++)
-	{
-
-		centers[offsetCenter*filterSize+centerIndex]=updates[offsetCenter*(filterSize+1)+centerIndex];
-	}
-}
-
-__kernel void mixCenters2D(__global float *centers,  __global float *updates, const int dimFilter, const int dimNoClusters)
-{
-	int offsetCenter = get_global_id(0);
-	int filterSize=dimFilter*dimFilter;
 	int centerIndex;
 	float influence=0;
 	
@@ -122,16 +107,16 @@ __kernel void mixCenters2D(__global float *centers,  __global float *updates, co
 	int offsetCenterX_1=(offsetCenterX+dimNoClusters-1)%dimNoClusters;
 	int offsetCenterY_1=(offsetCenterY+dimNoClusters-1)%dimNoClusters;
 	
-	for(centerIndex=0;centerIndex<filterSize;centerIndex++)
+	for(centerIndex=0;centerIndex<FILTER_SIZE;centerIndex++)
 	{
-		influence = updates[(offsetCenterY*dimNoClusters+offsetCenterX1)*(filterSize+1)+centerIndex];
+		influence = updates[(offsetCenterY*dimNoClusters+offsetCenterX1)*(FILTER_SIZE+1)+centerIndex];
 
-		influence = influence + updates[(offsetCenterY*dimNoClusters+offsetCenterX_1)*(filterSize+1)+centerIndex];
+		influence = influence + updates[(offsetCenterY*dimNoClusters+offsetCenterX_1)*(FILTER_SIZE+1)+centerIndex];
 
-		influence = influence + updates[(offsetCenterY1*dimNoClusters+offsetCenterX)*(filterSize+1)+centerIndex];
+		influence = influence + updates[(offsetCenterY1*dimNoClusters+offsetCenterX)*(FILTER_SIZE+1)+centerIndex];
 
-		influence = influence + updates[(offsetCenterY_1*dimNoClusters+offsetCenterX)*(filterSize+1)+centerIndex];
+		influence = influence + updates[(offsetCenterY_1*dimNoClusters+offsetCenterX)*(FILTER_SIZE+1)+centerIndex];
 
-		centers[offsetCenter*filterSize+centerIndex]=(INFLUENCE*updates[offsetCenter*(filterSize+1)+centerIndex]+influence)/(INFLUENCE+4);
+		centers[offsetCenter*FILTER_SIZE+centerIndex]=(INFLUENCE*updates[offsetCenter*(FILTER_SIZE+1)+centerIndex]+influence)/(INFLUENCE+4);
 	}
 }
