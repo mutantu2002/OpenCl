@@ -9,12 +9,13 @@ import home.mutant.dl.utils.MnistDatabase;
 import home.mutant.dl.utils.MnistDatabase.TYPE;
 import home.mutant.opencl.multilayer.LastLayer;
 import home.mutant.opencl.multilayer.OneLayer;
+import home.mutant.opencl.multilayer.steps.MeanPollingImages;
 
 public class ML2Layers {
 
 	public static void main(String[] args) throws Exception {
 		MnistDatabase.IMAGE_TYPE = TYPE.FLOAT;
-		MnistDatabase.loadImagesPadded(4);;
+		MnistDatabase.loadImagesPadded(4);
 		OneLayer ol = new OneLayer(MnistDatabase.trainImages);
 		ol.transform();
 		List<Image> testImages = ol.transform(MnistDatabase.testImages);
@@ -22,9 +23,16 @@ public class ML2Layers {
 		ResultFrame frame = new ResultFrame(800, 800);
 		frame.showImages(ol.getOutImages().subList(0, 256), 16);
 		
-		OneLayer ol2 = new OneLayer(ol.getOutImages(),1024,4,2,4,2);
+		MeanPollingImages mp = new MeanPollingImages(ol.getOutImages());
+		mp.transform();
+		
+		MeanPollingImages mpt = new MeanPollingImages(testImages);
+		mpt.transform();
+		
+		OneLayer ol2 = new OneLayer(mp.getTransformedImages(),1024,2,2,4,2);
 		ol2.transform();
-		testImages = ol2.transform(testImages);
+		testImages = ol2.transform(mpt.getTransformedImages());
+		
 		ResultFrame framef = new ResultFrame(800, 800);
 		framef.showImages(ol2.getFilters().subList(0, 256), 16);
 		
