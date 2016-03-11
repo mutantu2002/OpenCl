@@ -33,7 +33,9 @@ public class Kernel {
 	public void setArgument(int value, int index){
 		clSetKernelArg(clKernel, index, Sizeof.cl_int, Pointer.to(new int[]{ value }));
 	}
-	
+	public void setArgument(float value, int index){
+		clSetKernelArg(clKernel, index, Sizeof.cl_float, Pointer.to(new float[]{ value }));
+	}	
 	public void set2Argument(int value1,int value2, int index){
 		clSetKernelArg(clKernel, index, Sizeof.cl_int2, Pointer.to(new int[]{ value1,value2 }));
 	}
