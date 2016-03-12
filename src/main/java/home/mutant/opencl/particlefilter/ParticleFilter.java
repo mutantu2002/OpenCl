@@ -3,7 +3,7 @@ package home.mutant.opencl.particlefilter;
 import home.mutant.dl.models.Image;
 import home.mutant.dl.models.ImageFloat;
 import home.mutant.dl.utils.MathUtils;
-import home.mutant.opencl.particlefilter.steps.EstimateMeasurement;
+import home.mutant.opencl.particlefilter.steps.ParticleFilterOpenCl;
 
 public class ParticleFilter {
 	public static final int NO_RND=1000;
@@ -21,7 +21,7 @@ public class ParticleFilter {
 	int step=0;
 	int[] rnd = new int[NO_RND];
 	
-	EstimateMeasurement em;
+	ParticleFilterOpenCl particleOpencl;
 	
 	public ParticleFilter(Image mapImage, Image inputImage, int noParticles){
 		this.mapImage=mapImage;
@@ -32,12 +32,12 @@ public class ParticleFilter {
 		this.dimMap = (int) Math.sqrt(mapSize);
 		this.noParticles = noParticles;
 		this.currentNoParticles = noParticles;
-		initParticles();
 		xInput=dimImage/2;
 		yInput=dimImage/2;
 		for (int i=0;i<NO_RND;i++){
 			rnd[i]=2-(int)(5*Math.random());
 		}
+		initParticles();
 	}
 
 	private void initParticles() {
@@ -47,11 +47,11 @@ public class ParticleFilter {
 			particles.y[i]=(int) (Math.random()*dimMap);
 			particles.weights[i]=1./noParticles;
 		}
-		em=new EstimateMeasurement(mapImage.getDataFloat(), particles.x, particles.y, particles.weights);
+		particleOpencl=new ParticleFilterOpenCl(mapImage.getDataFloat(), particles.x, particles.y, particles.weights, rnd);
 	}
 	public void step(){
 		float measurement = inputImage.getDataFloat()[yInput*dimImage+xInput];
-		estimateParticlesWeights(measurement);
+		estimateParticlesWeightsOpenCl(measurement);
 		normalizeWeights();
 		recreateParticles();
 		int xNew=xInput;
@@ -73,19 +73,19 @@ public class ParticleFilter {
 			}
 		}while(test);
 		step++;
-		moveParticles(xNew-xInput, yNew-yInput);
+		moveParticlesOpenCl(xNew-xInput, yNew-yInput);
 		xInput=xNew;
 		yInput=yNew;
 	}
+	@SuppressWarnings("unused")
 	private void estimateParticlesWeights(float measurement){
 		for(int i=0;i<currentNoParticles;i++){
 			float diff = mapImage.getDataFloat()[(particles.y[i]*dimMap+particles.x[i])]-measurement;
 			particles.weights[i]=MathUtils.gaussian(diff, 40);
 		}
 	}
-	@SuppressWarnings("unused")
 	private void estimateParticlesWeightsOpenCl(float measurement){
-		em.estimate(measurement, currentNoParticles);
+		particleOpencl.estimate(measurement, currentNoParticles);
 	}
 	private void normalizeWeights(){
 		double sum=0;
@@ -110,6 +110,12 @@ public class ParticleFilter {
 		}
 		currentNoParticles = newIndex;
 	}
+	private void moveParticlesOpenCl(int x, int y){
+		int indexRnd = (int) (NO_RND * Math.random());
+		particleOpencl.move(x, y, indexRnd,currentNoParticles);
+		
+	}
+	@SuppressWarnings("unused")
 	private void moveParticles(int x, int y){
 		int index = (int) (NO_RND * Math.random());
 		for(int i=0;i<currentNoParticles;i++){
@@ -117,7 +123,7 @@ public class ParticleFilter {
 			index%=NO_RND;
 			if(particles.x[i]>=dimMap)particles.x[i]=dimMap-1;
 			if(particles.x[i]<0)particles.x[i]=0;
-			particles.y[i]+=y+rnd[index];
+			particles.y[i]+=y+rnd[index++];
 			index%=NO_RND;
 			if(particles.y[i]>=dimMap)particles.y[i]=dimMap-1;
 			if(particles.y[i]<0)particles.y[i]=0;
@@ -132,5 +138,10 @@ public class ParticleFilter {
 			imgParticles.setPixel(particles.x[i], particles.y[i], value);
 		}
 		return imgParticles;
+	}
+
+	public void release() {
+		particleOpencl.releaseOpenCl();
+		
 	}
 }
