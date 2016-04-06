@@ -20,6 +20,7 @@ public class ParticleFilter {
 	int yInput;
 	int step=0;
 	int[] rnd = new int[NO_RND];
+	double sum=0;
 	
 	ParticleFilterOpenCl particleOpencl;
 	
@@ -32,10 +33,10 @@ public class ParticleFilter {
 		this.dimMap = (int) Math.sqrt(mapSize);
 		this.noParticles = noParticles;
 		this.currentNoParticles = noParticles;
-		xInput=dimImage/2;
-		yInput=dimImage/2;
+		xInput=0;//dimImage/2;
+		yInput=0;//dimImage/2;
 		for (int i=0;i<NO_RND;i++){
-			rnd[i]=2-(int)(5*Math.random());
+			rnd[i]=1-(int)(3*Math.random());
 		}
 		initParticles();
 	}
@@ -57,21 +58,31 @@ public class ParticleFilter {
 		int xNew=xInput;
 		int yNew=yInput;
 		
-		boolean test;
-		do{
-			xNew=(int) (dimImage-dimImage*Math.random());
-			if(xNew>=dimImage)xNew=dimImage-1;
-			if(xNew<0)xNew=0;
-			yNew=(int) (dimImage-dimImage*Math.random());
-			if(yNew>=dimImage)yNew=dimImage-1;
-			if(yNew<0)yNew=0;
-			
-			if(step%2==0){
-				test=inputImage.getDataFloat()[yNew*dimImage+xNew]==0;
-			}else{
-				test=inputImage.getDataFloat()[yNew*dimImage+xNew]!=0;
+//		boolean test;
+//		do{
+//			//xNew=(int) (dimImage*Math.random());
+//			xNew = xInput+1-(int)(3*Math.random());
+//			if(xNew>=dimImage)xNew=dimImage-1;
+//			if(xNew<0)xNew=0;
+//			//yNew=(int) (dimImage*Math.random());
+//			yNew = yInput+1-(int)(3*Math.random());
+//			if(yNew>=dimImage)yNew=dimImage-1;
+//			if(yNew<0)yNew=0;
+//			
+//			if(step%2==0){
+//				test=inputImage.getDataFloat()[yNew*dimImage+xNew]==0;
+//			}else{
+//				test=inputImage.getDataFloat()[yNew*dimImage+xNew]!=0;
+//			}
+//		}while(test);
+		xNew=xInput+1;
+		if(xNew>=dimImage){
+			xNew=0;
+			yNew=yInput+1;
+			if(yNew>=dimImage){
+				yNew=0;
 			}
-		}while(test);
+		}
 		step++;
 		moveParticlesOpenCl(xNew-xInput, yNew-yInput);
 		xInput=xNew;
@@ -88,20 +99,18 @@ public class ParticleFilter {
 		particleOpencl.estimate(measurement, currentNoParticles);
 	}
 	private void normalizeWeights(){
-		double sum=0;
+		sum=0;
 		for(int i=0;i<currentNoParticles;i++){
 			sum+= particles.weights[i];
-		}
-		for(int i=0;i<currentNoParticles;i++){
-			particles.weights[i]/=sum;
 		}
 	}
 	
 	private void recreateParticles(){
 		particles.copyToTmp();
 		int newIndex=0;
+		//noParticles/=1.01;
 		for(int i=0;i<currentNoParticles;i++){
-			int noNew = (int) (particles.weights[i]*noParticles);
+			int noNew = (int) (particles.weights[i]/sum*noParticles);
 			for(int newI=0;newI<noNew;newI++){
 				particles.x[newIndex]=particles.xTmp[i];
 				particles.y[newIndex]=particles.yTmp[i];
@@ -110,6 +119,25 @@ public class ParticleFilter {
 		}
 		currentNoParticles = newIndex;
 	}
+	
+	private void recreateParticles2(){
+		particles.copyToTmp();
+		int newIndex=0;
+		for(int i=0;i<currentNoParticles;i++){
+			int noNew=0;
+			if(particles.weights[i]>0.5){
+				noNew=2;
+				//System.out.println(noNew);
+				for(int newI=0;newI<noNew;newI++){
+					particles.x[newIndex]=particles.xTmp[i];
+					particles.y[newIndex]=particles.yTmp[i];
+					newIndex++;
+				}
+			}
+		}
+		currentNoParticles = newIndex;
+	}
+	
 	private void moveParticlesOpenCl(int x, int y){
 		int indexRnd = (int) (NO_RND * Math.random());
 		particleOpencl.move(x, y, indexRnd,currentNoParticles);
@@ -133,7 +161,7 @@ public class ParticleFilter {
 	public Image getImageParticles(){
 		Image imgParticles = new ImageFloat(mapImage.getDataFloat().length);
 		for(int i=0;i<currentNoParticles;i++){
-			double value = imgParticles.getPixel(particles.x[i], particles.y[i])+10;
+			double value = imgParticles.getPixel(particles.x[i], particles.y[i])+20;
 			if(value>255)value=255;
 			imgParticles.setPixel(particles.x[i], particles.y[i], value);
 		}

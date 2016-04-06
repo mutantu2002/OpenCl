@@ -16,18 +16,18 @@ import home.mutant.dl.utils.Utils;
 
 public class SubImageKMeansOpenCl {
 	public static final int DIM_FILTER = 16;
-	public static final int NO_CLUSTERS = 64;
-	public static final int WORK_ITEMS = 10000;
-	public static final int NO_ITERATIONS = 10;
+	public static final int NO_CLUSTERS = 256;
+	public static final int WORK_ITEMS = 256*30;
+	public static final int NO_ITERATIONS = 2;
 	
 	public static final int WORK_GROUP_SIZE = 256;
 	
-	public static final int DIM_IMAGE = 28*3;
+	public static final int DIM_IMAGE = 28*5;
 	public static final int NO_MNIST_IMAGES = 60000;
 	
 	public static void main(String[] args) throws Exception {
 		MnistDatabase.IMAGE_TYPE = TYPE.FLOAT;
-		MnistDatabase.loadImagesPadded(28);
+		MnistDatabase.loadImagesPadded(56);
 		float[] inputImages= new float[(DIM_IMAGE*DIM_IMAGE)*WORK_ITEMS];
 		
 		float[] clustersCenters = new float[DIM_FILTER*DIM_FILTER*NO_CLUSTERS];
@@ -75,13 +75,13 @@ public class SubImageKMeansOpenCl {
 				program.finish();
 				
 			}
-			memUpdates.copyDtoH();
-			reduceCenters(clustersCenters, clustersUpdates);
-			memClusters.copyHtoD();
-			//reduceCenters.run(NO_CLUSTERS, NO_CLUSTERS);
-			//program.finish();
-			//mixCenters.run(NO_CLUSTERS, NO_CLUSTERS);
-			//program.finish();
+			//memUpdates.copyDtoH();
+			//reduceCenters(clustersCenters, clustersUpdates);
+			//memClusters.copyHtoD();
+			reduceCenters.run(NO_CLUSTERS, NO_CLUSTERS);
+			program.finish();
+			mixCenters.run(NO_CLUSTERS, NO_CLUSTERS);
+			program.finish();
 			System.out.println("Iteration "+iteration);
 		}
 		tTotal+=System.currentTimeMillis()-t0;

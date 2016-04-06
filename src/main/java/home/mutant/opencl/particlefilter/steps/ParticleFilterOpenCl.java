@@ -37,7 +37,7 @@ public class ParticleFilterOpenCl {
 	private void prepareOpenCl(){
 		Map<String, Object> params = new HashMap<>();
 		params.put("DIM_MAP", ((int)Math.sqrt(map.length)));
-		params.put("MEAN", 40);
+		params.put("MEAN", 20);
 		params.put("NO_RND", rnd.length);
 		
 		program = new Program(Program.readResource("/opencl/ParticleFilter.c"),params);		

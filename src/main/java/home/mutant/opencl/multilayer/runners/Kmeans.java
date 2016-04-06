@@ -9,11 +9,11 @@ public class Kmeans {
 
  	public static void main(String[] args) throws Exception {
  		MnistDatabase.IMAGE_TYPE = TYPE.FLOAT;
- 		MnistDatabase.loadImages();
+ 		MnistDatabase.loadImagesCrop(20);;
 
 		long t0=System.currentTimeMillis();
 		int noIterations=20;
-		ClusterImages  ci = new ClusterImages(MnistDatabase.trainImages, MnistDatabase.trainLabels, 4000, noIterations);
+		ClusterImages  ci = new ClusterImages(MnistDatabase.trainImages, MnistDatabase.trainLabels, 10000, noIterations);
 		ci.cluster();
 		ci.test(MnistDatabase.testImages, MnistDatabase.testLabels);
 		ci.releaseOpenCl();

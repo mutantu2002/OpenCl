@@ -1,12 +1,12 @@
 #define DIM_FILTER  16
-#define NO_CLUSTERS 64
-#define DIM_IMAGE  84
-#define IMAGE_SIZE  7056
+#define NO_CLUSTERS 256
+#define DIM_IMAGE  28*5
+#define IMAGE_SIZE  (DIM_IMAGE*DIM_IMAGE)
 #define FILTER_SIZE  (DIM_FILTER*DIM_FILTER)
 
 #define INFLUENCE 1
 #define STRIDE 8
-#define WORK_ITEMS 256*39
+#define WORK_ITEMS 256*30
 
 __kernel void updateCenters(__global float *centers, __global float *images, __global float *updates)
 {
