@@ -46,6 +46,7 @@ public class TransformImagesMap {
 		this.dimNoClusters=(int) Math.sqrt(filters.size());
 		int dimTransSize=dimNoClusters*((dimImage - dimFilter)/stride+1);
 		this.transformImageSize=dimTransSize*dimTransSize;
+		System.out.println(dimTransSize);
 	}
 	public void transform(){
 		prepareOpenCl();
@@ -77,7 +78,7 @@ public class TransformImagesMap {
 		params.put("DIM_NO_CLUSTERS", dimNoClusters);
 		params.put("DIM_IMAGE", dimImage);
 		params.put("STRIDE", stride);
-		params.put("MEAN", 200);
+		params.put("MEAN", 300);
 		program = new Program(Program.readResource("/opencl/TransformImagesMap.c"),params);		
 		
 		allImages = new float[imageSize*batchItems];

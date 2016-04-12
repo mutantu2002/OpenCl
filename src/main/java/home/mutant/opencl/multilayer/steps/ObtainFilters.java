@@ -19,8 +19,9 @@ public class ObtainFilters {
 	List<Image> clusterImages = new ArrayList<>();
 	int noIterations;
 	int noClusters;
-	int batchItems = 256*10;
+	int batchItems = 256*2;
 	int stride=1;
+	boolean withPooling=false;
 	float[] inputImages;
 	float[] clustersCenters;
 	float[] clustersUpdates;
@@ -33,16 +34,19 @@ public class ObtainFilters {
 	Kernel updateCenters;
 	
 	public ObtainFilters(List<Image> images, int dimFilter, int noClusters, int noIterations) {
-		this(images, dimFilter, noClusters, noIterations, 1);
+		this(images, dimFilter, noClusters, noIterations, 1, false);
 	}
-	
-	public ObtainFilters(List<Image> images, int dimFilter, int noClusters, int noIterations,int stride) {
+	public ObtainFilters(List<Image> images, int dimFilter, int noClusters, int noIterations,int stride){
+		this(images, dimFilter, noClusters, noIterations, stride, false);
+	}
+	public ObtainFilters(List<Image> images, int dimFilter, int noClusters, int noIterations,int stride, boolean withPooling) {
 		super();
 		this.images = images;
 		this.dimFilter = dimFilter;
 		this.noIterations = noIterations;
 		this.noClusters = noClusters;
 		this.stride = stride;
+		this.withPooling = withPooling;
 		this.imageSize = images.get(0).getDataFloat().length;
 		inputImages= new float[imageSize*batchItems];
 		
@@ -134,8 +138,10 @@ public class ObtainFilters {
 		params.put("NO_CLUSTERS", noClusters);
 		params.put("DIM_FILTER", dimFilter);
 		params.put("DIM_IMAGE", (int)Math.sqrt(imageSize));
-		params.put("STRIDE", stride);
-		program = new Program(Program.readResource("/opencl/SubImageKmeans2.c"),params);
+		params.put("STRIDE", stride);;
+		String resource="/opencl/SubImageKmeans2.c";
+		if(withPooling)resource = "/opencl/SubImageKmeansPooling.c";
+		program = new Program(Program.readResource(resource),params);
 		
 		memClusters = new MemoryFloat(program);
 		memClusters.addReadWrite(clustersCenters);

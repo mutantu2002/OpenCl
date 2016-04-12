@@ -3,23 +3,21 @@ package home.mutant.opencl.multilayer.runners;
 import home.mutant.dl.ui.ResultFrame;
 import home.mutant.dl.utils.MnistDatabase;
 import home.mutant.dl.utils.MnistDatabase.TYPE;
-import home.mutant.opencl.multilayer.steps.ClusterImages;
+import home.mutant.opencl.multilayer.steps.ObtainFilters;
 
-public class Kmeans {
+public class ObtainFiltersPooling {
 
  	public static void main(String[] args) throws Exception {
  		MnistDatabase.IMAGE_TYPE = TYPE.FLOAT;
  		MnistDatabase.loadImages();
 
 		long t0=System.currentTimeMillis();
-		int noIterations=20;
-		ClusterImages  ci = new ClusterImages(MnistDatabase.trainImages, MnistDatabase.trainLabels, 5000, noIterations);
-		ci.cluster();
-		ci.test(MnistDatabase.testImages, MnistDatabase.testLabels);
-		ci.releaseOpenCl();
+		int noIterations=5;
+		ObtainFilters  of = new ObtainFilters(MnistDatabase.trainImages.subList(0, 60000), 24, 256, noIterations, 1, true);
+		of.cluster();
 		long t=System.currentTimeMillis()-t0;
 		ResultFrame frame = new ResultFrame(1600, 800);
-		frame.showImages(ci.getClusters().subList(0, 256),16);
+		frame.showImages(of.getClusterImages(),16);
 		System.out.println(1000.*noIterations/t+" it/sec");
  	}
 }

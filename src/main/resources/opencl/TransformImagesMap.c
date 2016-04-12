@@ -41,8 +41,8 @@ __kernel void transform(__global float const *images,__global float *filters,__g
 						weight = filters[(centersIndexY*DIM_NO_CLUSTERS+centersIndexX)*FILTER_SIZE+index]-subImageBuffer[index];
 						sum = sum+weight*weight;
 					}
-					transY=imageY*DIM_NO_CLUSTERS+centersIndexY;
-					transX=imageX*DIM_NO_CLUSTERS+centersIndexX;
+					transY=imageY/STRIDE*DIM_NO_CLUSTERS+centersIndexY;
+					transX=imageX/STRIDE*DIM_NO_CLUSTERS+centersIndexX;
 					transformedImages[transImagesOffset+transY*transDimImage+transX]=exp(-1*sum/2/MEAN/MEAN)*255;
 				}
 			}
