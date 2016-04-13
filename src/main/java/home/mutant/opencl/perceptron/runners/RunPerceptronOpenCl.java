@@ -10,8 +10,9 @@ public class RunPerceptronOpenCl {
 	public static void main(String[] args) throws IOException {
 		MnistDatabase.IMAGE_TYPE = TYPE.FLOAT;
 		MnistDatabase.loadImages();
-		PerceptronOpenCl pocl = new PerceptronOpenCl(MnistDatabase.trainImages.subList(0, 1000), MnistDatabase.trainLabels.subList(0, 1000));
+		PerceptronOpenCl pocl = new PerceptronOpenCl(MnistDatabase.trainImages, MnistDatabase.trainLabels);
 		pocl.output();
+		pocl.calculateEntropy();
 		pocl.releaseOpenCl();
 	}
 }

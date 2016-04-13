@@ -1,5 +1,7 @@
 package home.mutant.opencl.perceptron;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -21,18 +23,20 @@ public class PerceptronOpenCl {
 	float[] inputs;
 	int[] labels;
 	float[] weights;
-	int noPerceptrons = 200;
+	int noPerceptrons = 20000;
 	float[] outputs;
-	public PerceptronOpenCl(List<Image> images, List<Integer> labels){
-		int imageSize = images.get(0).getDataFloat().length;
-		inputs = new float[imageSize*images.size()];
-		this.labels = new int[labels.size()];
-		for (int i=0;i<images.size();i++){
-			System.arraycopy(images.get(i).getDataFloat(), 0, inputs, i*(imageSize), imageSize);
-		}
-		for (int i=0;i<labels.size();i++){
-			this.labels[i]=labels.get(i);
-		}
+	int batchItems=10000;
+	List<Image> images;
+	List<Integer> labelsList;
+	int imageSize;
+	
+	public PerceptronOpenCl(List<Image> images, List<Integer> labelsList){
+		this.images = images;
+		this.labelsList = labelsList;
+		
+		imageSize = images.get(0).getDataFloat().length;
+		inputs = new float[imageSize*batchItems];
+		this.labels = new int[batchItems];
 		weights= new float[noPerceptrons*(imageSize+1)];
 		for (int i=0;i<weights.length;i++){
 			weights[i]=(float) (1-2*Math.random());
@@ -41,7 +45,7 @@ public class PerceptronOpenCl {
 		
 		Map<String, Object> params = new HashMap<>();
 		params.put("INPUT_SIZE", imageSize);
-		params.put("NO_INPUTS", images.size());
+		params.put("NO_INPUTS", batchItems);
 		program = new Program(Program.readResource("/opencl/Perceptron.c"),params);
 		
 		memInputs = new MemoryFloat(program);
@@ -64,10 +68,42 @@ public class PerceptronOpenCl {
 	}
 	
 	public void output(){
-		kernelOutput.run(noPerceptrons, 200);
+		for (int batch=0 ;batch<images.size()/batchItems;batch++){
+			for (int i=0;i<batchItems;i++){
+				System.arraycopy(images.get(batch*batchItems+i).getDataFloat(), 0, inputs, i*imageSize, imageSize);
+			}
+			for (int i=0;i<batchItems;i++){
+				this.labels[i]=labelsList.get(batch*batchItems+i);
+			}
+			memInputs.copyHtoD();
+			memLabels.copyHtoD();
+			kernelOutput.run(noPerceptrons, 256);
+		}
 		memOutputs.copyDtoH();
 	}
-	
+	public void calculateEntropy(){
+		List<Double> entropies = new ArrayList<>();
+		for(int i=0;i<noPerceptrons;i++)
+		{
+			double total=0;
+			for (int j=0;j<10;j++){
+				total+=outputs[i*10+j];
+			}
+			double entropy=0;
+			for (int j=0;j<10;j++){
+				double d = outputs[i*10+j]/total;
+				entropy-=d*Math.log10(d);
+			}
+			if(!Double.isNaN(entropy)){
+				entropies.add(entropy);
+			}
+			
+		}
+		Collections.sort(entropies, Collections.reverseOrder());
+		for (Double double1 : entropies) {
+			System.out.println(double1);
+		}
+	}
 	public void releaseOpenCl(){
 		memInputs.release();
 		memLabels.release();
