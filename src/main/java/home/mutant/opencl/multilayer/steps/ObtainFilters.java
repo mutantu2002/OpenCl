@@ -51,7 +51,7 @@ public class ObtainFilters {
 		inputImages= new float[imageSize*batchItems];
 		
 		clustersCenters = new float[dimFilter*dimFilter*noClusters];
-		randomizeClusters2();
+		randomizeClusters();
 		clustersUpdates = new float[(dimFilter*dimFilter+1)*noClusters*batchItems];
 	}
 	public void cluster(){
@@ -132,13 +132,20 @@ public class ObtainFilters {
 		return (float) Math.sqrt(d);
 	}
 	private void prepareOpenCl(){
+		int dimImage = (int)Math.sqrt(imageSize);
+		int dimPooling = 2*dimFilter;
+		if(dimPooling>dimImage)dimPooling = dimImage;
+		
 		Map<String, Object> params = new HashMap<>();
 		params.put("IMAGE_SIZE", imageSize);
 		params.put("FILTER_SIZE", dimFilter*dimFilter);
 		params.put("NO_CLUSTERS", noClusters);
 		params.put("DIM_FILTER", dimFilter);
-		params.put("DIM_IMAGE", (int)Math.sqrt(imageSize));
-		params.put("STRIDE", stride);;
+		params.put("DIM_POOLING", dimPooling);
+		params.put("DIM_IMAGE", dimImage);
+		params.put("STRIDE", stride);
+		params.put("STRIDE_POOLING", dimFilter);
+		
 		String resource="/opencl/SubImageKmeans2.c";
 		if(withPooling)resource = "/opencl/SubImageKmeansPooling.c";
 		program = new Program(Program.readResource(resource),params);

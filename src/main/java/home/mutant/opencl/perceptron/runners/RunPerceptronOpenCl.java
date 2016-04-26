@@ -9,7 +9,7 @@ import home.mutant.opencl.perceptron.PerceptronOpenCl;
 public class RunPerceptronOpenCl {
 	public static void main(String[] args) throws IOException {
 		MnistDatabase.IMAGE_TYPE = TYPE.FLOAT;
-		MnistDatabase.loadImages();
+		MnistDatabase.loadImagesNormalized();
 		PerceptronOpenCl pocl = new PerceptronOpenCl(MnistDatabase.trainImages, MnistDatabase.trainLabels);
 		pocl.output();
 		pocl.calculateEntropy();

@@ -23,7 +23,7 @@ public class PerceptronOpenCl {
 	float[] inputs;
 	int[] labels;
 	float[] weights;
-	int noPerceptrons = 20000;
+	int noPerceptrons = 10000;
 	float[] outputs;
 	int batchItems=10000;
 	List<Image> images;
@@ -52,7 +52,7 @@ public class PerceptronOpenCl {
 		memInputs.addReadOnly(inputs);
 		
 		memWeights = new MemoryFloat(program);
-		memWeights.addReadOnly(weights);
+		memWeights.addReadWrite(weights);
 		
 		memLabels = new MemoryInt(program);
 		memLabels.addReadOnly(this.labels);
@@ -89,15 +89,14 @@ public class PerceptronOpenCl {
 			for (int j=0;j<10;j++){
 				total+=outputs[i*10+j];
 			}
+			if(total<1000)continue;
 			double entropy=0;
 			for (int j=0;j<10;j++){
 				double d = outputs[i*10+j]/total;
-				entropy-=d*Math.log10(d);
+				if(d!=0)
+					entropy-=d*Math.log10(d);
 			}
-			if(!Double.isNaN(entropy)){
-				entropies.add(entropy);
-			}
-			
+			entropies.add(entropy);
 		}
 		Collections.sort(entropies, Collections.reverseOrder());
 		for (Double double1 : entropies) {

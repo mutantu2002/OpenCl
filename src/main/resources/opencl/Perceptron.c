@@ -13,9 +13,21 @@ __kernel void output(__global float *inputs, __global int *labels, __global floa
 			sum+=inputs[indexInput*INPUT_SIZE+indexWeights]*weights[weightsOffset+indexWeights];
 		}
 		sum+=weights[weightsOffset+INPUT_SIZE];
-		if(sum>0)
+		if(sum>15)
 		{
 			outputs[outputOffset+labels[indexInput]]+=1;
+//			for(indexWeights=0;indexWeights<INPUT_SIZE;indexWeights++)
+//			{
+//				weights[weightsOffset+indexWeights]+=inputs[indexInput*INPUT_SIZE+indexWeights]*0.0004;
+//			}
+			//weights[weightsOffset+INPUT_SIZE]+=0.0004;
+		}else
+		{
+//			for(indexWeights=0;indexWeights<INPUT_SIZE;indexWeights++)
+//			{
+//				weights[weightsOffset+indexWeights]-=inputs[indexInput*INPUT_SIZE+indexWeights]*0.0004;
+//			}
+//			weights[weightsOffset+INPUT_SIZE]-=0.0004;
 		}
 	}
 }

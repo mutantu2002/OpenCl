@@ -12,12 +12,12 @@ public class ObtainFiltersPooling {
  		MnistDatabase.loadImages();
 
 		long t0=System.currentTimeMillis();
-		int noIterations=5;
-		ObtainFilters  of = new ObtainFilters(MnistDatabase.trainImages.subList(0, 60000), 24, 256, noIterations, 1, true);
+		int noIterations=50;
+		ObtainFilters  of = new ObtainFilters(MnistDatabase.trainImages.subList(0, 60000), 5, 16, noIterations, 1, true);
 		of.cluster();
 		long t=System.currentTimeMillis()-t0;
 		ResultFrame frame = new ResultFrame(1600, 800);
-		frame.showImages(of.getClusterImages(),16);
+		frame.showImages(of.getClusterImages(),4);
 		System.out.println(1000.*noIterations/t+" it/sec");
  	}
 }

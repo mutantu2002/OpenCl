@@ -13,60 +13,68 @@ __kernel void updateCenters(__global float *centers, __global const float *image
 	
 	int imageX;
 	int imageY;
+	int imagePX;
+	int imagePY;
 	int filterX;
 	int filterY;
 	int minX=0;
 	int minY=0;
 	float subImageBuffer[FILTER_SIZE];
 	
-	min=FLT_MAX;
-	minCenterIndex=0;
-
-	for(imageX=0;imageX<=DIM_IMAGE-DIM_FILTER;imageX+=STRIDE)
+	for(imagePX=0;imagePX<=DIM_IMAGE-DIM_POOLING;imagePX+=STRIDE_POOLING)
 	{
-		for(imageY=0;imageY<=DIM_IMAGE-DIM_FILTER;imageY+=STRIDE)
+		for(imagePY=0;imagePY<=DIM_IMAGE-DIM_POOLING;imagePY+=STRIDE_POOLING)
 		{
+			min=FLT_MAX;
+			minCenterIndex=0;
+
+			for(imageX=imagePX;imageX<=imagePX+DIM_POOLING-DIM_FILTER;imageX+=STRIDE)
+			{
+				for(imageY=imagePY;imageY<=imagePY+DIM_POOLING-DIM_FILTER;imageY+=STRIDE)
+				{
+					index=0;
+					for(filterX=0;filterX<DIM_FILTER;filterX++)
+					{
+						for(filterY=0;filterY<DIM_FILTER;filterY++)
+						{
+							subImageBuffer[index++] = images[imagesOffset+(imageY+filterY)+(imageX+filterX)*DIM_IMAGE];
+						}
+					}
+
+					for(centersIndex=0;centersIndex<NO_CLUSTERS;centersIndex++)
+					{
+						sum = 0;
+						for(index=0;index<FILTER_SIZE;index++)
+						{
+							weight = centers[centersIndex*FILTER_SIZE+index]-subImageBuffer[index];
+							sum +=weight*weight;
+						}
+						if (sum<min)
+						{
+							min = sum;
+							minCenterIndex = centersIndex;
+							minX=imageX;
+							minY=imageY;
+						}
+					}
+
+				}
+			}
+
 			index=0;
 			for(filterX=0;filterX<DIM_FILTER;filterX++)
 			{
 				for(filterY=0;filterY<DIM_FILTER;filterY++)
 				{
-					subImageBuffer[index++] = images[imagesOffset+(imageY+filterY)+(imageX+filterX)*DIM_IMAGE];
+					subImageBuffer[index++] = images[imagesOffset+(minY+filterY)+(minX+filterX)*DIM_IMAGE];
 				}
 			}
-
-			for(centersIndex=0;centersIndex<NO_CLUSTERS;centersIndex++)
+			minCenterIndex = (FILTER_SIZE+1)*minCenterIndex;
+			for(index=0;index<FILTER_SIZE;index++)
 			{
-				sum = 0;
-				for(index=0;index<FILTER_SIZE;index++)
-				{
-					weight = centers[centersIndex*FILTER_SIZE+index]-subImageBuffer[index];
-					sum +=weight*weight;
-				}
-				if (sum<min)
-				{
-					min = sum;
-					minCenterIndex = centersIndex;
-					minX=imageX;
-					minY=imageY;
-				}
+				updates[updatesOffset+minCenterIndex+index]+= subImageBuffer[index];
 			}
-
+			updates[updatesOffset+minCenterIndex+FILTER_SIZE]+=1;
 		}
 	}
-
-	index=0;
-	for(filterX=0;filterX<DIM_FILTER;filterX++)
-	{
-		for(filterY=0;filterY<DIM_FILTER;filterY++)
-		{
-			subImageBuffer[index++] = images[imagesOffset+(minY+filterY)+(minX+filterX)*DIM_IMAGE];
-		}
-	}
-	minCenterIndex = (FILTER_SIZE+1)*minCenterIndex;
-	for(index=0;index<FILTER_SIZE;index++)
-	{
-		updates[updatesOffset+minCenterIndex+index]+= subImageBuffer[index];
-	}
-	updates[updatesOffset+minCenterIndex+FILTER_SIZE]+=1;
 }
