@@ -13,11 +13,11 @@ public class ObtainFiltersPooling {
 
 		long t0=System.currentTimeMillis();
 		int noIterations=50;
-		ObtainFilters  of = new ObtainFilters(MnistDatabase.trainImages.subList(0, 60000), 5, 16, noIterations, 1, true);
+		ObtainFilters  of = new ObtainFilters(MnistDatabase.trainImages.subList(0, 256*234), 5, 25, noIterations, 1, true);
 		of.cluster();
 		long t=System.currentTimeMillis()-t0;
 		ResultFrame frame = new ResultFrame(1600, 800);
-		frame.showImages(of.getClusterImages(),4);
+		frame.showImages(of.getClusterImages(),5);
 		System.out.println(1000.*noIterations/t+" it/sec");
  	}
 }

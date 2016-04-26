@@ -73,7 +73,7 @@ public class ObtainFilters {
 			memClusters.copyHtoD();
 		}
 		releaseOpenCl();
-		contructImageClusters();
+		constructImageClusters();
 	}
 	public List<Image> getClusterImages() {
 		return clusterImages;
@@ -96,6 +96,32 @@ public class ObtainFilters {
 				}
 			}
 		}
+		
+		/* combine clusters 2D - not working well...
+		int dimNoClusters=(int) Math.sqrt(noClusters);
+		float influence=10f;
+		int filterSize = dimFilter*dimFilter;
+		
+		for (int i=0;i<noClusters;i++){
+			int offsetCenterX=i%dimNoClusters;
+			int offsetCenterY=i/dimNoClusters;
+			
+			int offsetCenterX1=(offsetCenterX+1)%dimNoClusters;
+			int offsetCenterY1=(offsetCenterY+1)%dimNoClusters;
+			int offsetCenterX_1=(offsetCenterX+dimNoClusters-1)%dimNoClusters;
+			int offsetCenterY_1=(offsetCenterY+dimNoClusters-1)%dimNoClusters;
+			int clusterOffset = filterSize*i;
+			for(int j=0;j<filterSize;j++){
+				clustersUpdates[clusterOffset+j]=influence*clustersCenters[clusterOffset+j];
+				clustersUpdates[clusterOffset+j]+=clustersCenters[(offsetCenterY*dimNoClusters+offsetCenterX1)*filterSize+j];
+				clustersUpdates[clusterOffset+j]+=clustersCenters[(offsetCenterY*dimNoClusters+offsetCenterX_1)*filterSize+j];
+				clustersUpdates[clusterOffset+j]+=clustersCenters[(offsetCenterY1*dimNoClusters+offsetCenterX)*filterSize+j];
+				clustersUpdates[clusterOffset+j]+=clustersCenters[(offsetCenterY_1*dimNoClusters+offsetCenterX)*filterSize+j];
+				clustersUpdates[clusterOffset+j]/=influence+4;
+			}
+		}
+		System.arraycopy(clustersUpdates, 0, clustersCenters, 0,  filterSize*noClusters);
+		*/
 	}
 	private void randomizeClusters() {
 		for (int i = 0; i < clustersCenters.length; i++) {
@@ -169,7 +195,7 @@ public class ObtainFilters {
 		updateCenters.release();
 		program.release();
 	}
-	private void contructImageClusters(){
+	private void constructImageClusters(){
 		for (int i=0;i<noClusters;i++) {
 			Image image = new ImageFloat(dimFilter*dimFilter);
 			System.arraycopy(memClusters.getSrc(), i*dimFilter*dimFilter, image.getDataFloat(), 0, dimFilter*dimFilter);

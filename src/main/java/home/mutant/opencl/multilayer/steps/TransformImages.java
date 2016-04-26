@@ -13,7 +13,7 @@ import home.mutant.opencl.model.Program;
 
 public class TransformImages {
 	List<Image> images;
-	ArrangeFilters filters;
+	ArrangeFilters4D filters;
 	List<Image> transformedImages = new ArrayList<Image>();
 	int imageSize;
 	int filterSize;
@@ -38,7 +38,7 @@ public class TransformImages {
 	float[] allFilters;
 	float[] allTransformed;
 	
-	public TransformImages(List<Image> images, ArrangeFilters filters, int stride) {
+	public TransformImages(List<Image> images, ArrangeFilters4D filters, int stride) {
 		super();
 		this.images = images;
 		this.filters = filters;

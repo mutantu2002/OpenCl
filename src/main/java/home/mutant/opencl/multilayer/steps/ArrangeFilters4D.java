@@ -10,7 +10,7 @@ import home.mutant.opencl.model.Kernel;
 import home.mutant.opencl.model.MemoryFloat;
 import home.mutant.opencl.model.Program;
 
-public class ArrangeFilters {
+public class ArrangeFilters4D {
 	public List<Image> images;
 	
 	public  float preDistances[];
@@ -40,10 +40,10 @@ public class ArrangeFilters {
 	private  Kernel stepV;
 	private  Program program;
 	
-	public ArrangeFilters(List<Image> images) {
+	public ArrangeFilters4D(List<Image> images) {
 		this(images,4);
 	}
-	public ArrangeFilters(List<Image> images, int scaleDistances) {
+	public ArrangeFilters4D(List<Image> images, int scaleDistances) {
 		super();
 		this.images = images;
 		this.scaleDistances = scaleDistances;

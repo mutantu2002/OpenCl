@@ -3,7 +3,7 @@ package home.mutant.opencl.multilayer;
 import java.util.List;
 
 import home.mutant.dl.models.Image;
-import home.mutant.opencl.multilayer.steps.ArrangeFilters;
+import home.mutant.opencl.multilayer.steps.ArrangeFilters4D;
 import home.mutant.opencl.multilayer.steps.ObtainFilters;
 import home.mutant.opencl.multilayer.steps.TransformImages;
 
@@ -16,7 +16,7 @@ public class OneLayer {
 	int dimFilter=4;
 	int scaleDistances=4;
 	int noFilters = 256;
-	ArrangeFilters af;
+	ArrangeFilters4D af;
 	
 	public OneLayer(List<Image> inImages) {
 		super();
@@ -51,7 +51,7 @@ public class OneLayer {
 		of.cluster();
 		
 		System.out.println("Arrange filters...");
-		af = new ArrangeFilters(of.getClusterImages(),scaleDistances);
+		af = new ArrangeFilters4D(of.getClusterImages(),scaleDistances);
 		long t0 = System.currentTimeMillis();
 //		for(int i=0;i<frames;i++){
 //			af.stepV();
