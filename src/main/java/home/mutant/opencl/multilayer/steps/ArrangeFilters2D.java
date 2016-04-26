@@ -1,5 +1,7 @@
 package home.mutant.opencl.multilayer.steps;
 
+import java.awt.geom.Point2D;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -19,7 +21,7 @@ public class ArrangeFilters2D {
 	float[] vx;
 	float[] vy;
 	float dt=0.001f;
-	float K=1;
+	float K=0.1f;
 	float friction=0.1f;
 	
 	int scaleDistances=4;
@@ -52,7 +54,6 @@ public class ArrangeFilters2D {
 		params.put("DT", dt);
 		params.put("K", K);
 		params.put("FRICTION", friction);
-		params.put("BATCH", images.size()/256);
 		program = new Program(Program.readResource("/opencl/ElasticSmoothie2DFloat.c"),params);
 		
 		memX = new MemoryFloat(program);
@@ -119,25 +120,10 @@ public class ArrangeFilters2D {
 		return v/images.size();
 	}
 	public void stepV(){
-		stepV.run(256, 256);
+		stepV.run(images.size(), 256>images.size()?images.size():256);
 		program.finish();
 	}
 	
-	public void listDistances(){
-		copyDtoH();
-		double error=0;
-		memPredistances.copyDtoH();
-		int size = images.size();
-		for (int i=0;i<size;i++){
-			for (int j=0;j<size;j++){
-				if(i==j) continue;
-				double postDist = Math.sqrt((x[i]-x[j])*(x[i]-x[j])+(y[i]-y[j])*(y[i]-y[j]));
-				//System.out.println(postDist+" - "+preDistances[i*size+j]);
-				error+=Math.abs(postDist-preDistances[i*size+j])/preDistances[i*size+j];
-			}
-		}
-		System.out.println("Error "+error);
-	}
 	public void copyDtoH(){
 		memX.copyDtoH();
 		memY.copyDtoH();
@@ -152,5 +138,59 @@ public class ArrangeFilters2D {
 		memPredistances.release();
 		stepV.release();
 		program.release();
+	}
+	public int[][] getArrangedImages(){
+		int dimImage = (int) Math.sqrt(images.size());
+		int halfDimImage = (dimImage-1)/2; 
+		int [][] arrangedImages = new int[dimImage][dimImage];
+		int index=0;
+		List<Point2D.Float> result = putResultOnList();
+		int xi=0;
+		int yi=0;
+		int sensX=1;
+		int sensY=0;
+		int currentDim=1;
+		int currentIndex=0;
+		while(index<images.size()){
+			int closest = getClosestPoint(result, xi, yi);
+			result.set(closest, null);
+			arrangedImages[xi+halfDimImage][yi+halfDimImage]=closest;
+			xi+=sensX;
+			yi+=sensY;
+			currentIndex++;
+			if(currentIndex==currentDim){
+				currentIndex=0;
+				if(sensY==0){
+					sensY=sensX;
+					sensX=0;
+				}else{
+					sensX=-sensY;
+					sensY=0;
+					currentDim++;
+				}
+			}
+		}
+		return arrangedImages;
+	}
+	public List<Point2D.Float> putResultOnList(){
+		List<Point2D.Float> result = new ArrayList<>();
+		for (int i=0;i<images.size();i++){
+			result.add(new Point2D.Float(x[i], y[i]));
+		}
+		return result;
+	}
+	
+	public int getClosestPoint(List<Point2D.Float> points, int x, int y){
+		double min = Double.MAX_VALUE;
+		int indexMin=0;
+		for (int i=0;i<points.size();i++){
+			if(points.get(i)==null) continue;
+			double d = (x-points.get(i).x)*(x-points.get(i).x)+(y-points.get(i).y)*(y-points.get(i).y);
+			if(d<min){
+				d=min;
+				indexMin=i;
+			}
+		}
+		return indexMin;
 	}
 }
