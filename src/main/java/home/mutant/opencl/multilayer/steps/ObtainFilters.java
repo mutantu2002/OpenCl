@@ -19,7 +19,7 @@ public class ObtainFilters {
 	List<Image> clusterImages = new ArrayList<>();
 	int noIterations;
 	int noClusters;
-	int batchItems = 256*2;
+	int batchItems = 256*234;
 	int stride=1;
 	boolean withPooling=false;
 	float[] inputImages;

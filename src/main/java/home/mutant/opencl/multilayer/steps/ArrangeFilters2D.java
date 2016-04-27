@@ -139,10 +139,10 @@ public class ArrangeFilters2D {
 		stepV.release();
 		program.release();
 	}
-	public int[][] getArrangedImages(){
+	public List<Image> getArrangedImages(){
 		int dimImage = (int) Math.sqrt(images.size());
 		int halfDimImage = (dimImage-1)/2; 
-		int [][] arrangedImages = new int[dimImage][dimImage];
+		int [][] arrangedArray = new int[dimImage][dimImage];
 		int index=0;
 		List<Point2D.Float> result = putResultOnList();
 		int xi=0;
@@ -151,10 +151,10 @@ public class ArrangeFilters2D {
 		int sensY=0;
 		int currentDim=1;
 		int currentIndex=0;
-		while(index<images.size()){
-			int closest = getClosestPoint(result, xi, yi);
+		while(index++<images.size()){
+			int closest = getClosestPoint(result, xi*40, yi*40);
 			result.set(closest, null);
-			arrangedImages[xi+halfDimImage][yi+halfDimImage]=closest;
+			arrangedArray[xi+halfDimImage][yi+halfDimImage]=closest;
 			xi+=sensX;
 			yi+=sensY;
 			currentIndex++;
@@ -168,6 +168,12 @@ public class ArrangeFilters2D {
 					sensY=0;
 					currentDim++;
 				}
+			}
+		}
+		List<Image> arrangedImages = new ArrayList<>();
+		for (int y=0;y<arrangedArray[0].length;y++){
+			for (int x=0;x<arrangedArray.length;x++){
+				arrangedImages.add(images.get(arrangedArray[x][y]));
 			}
 		}
 		return arrangedImages;
@@ -187,7 +193,7 @@ public class ArrangeFilters2D {
 			if(points.get(i)==null) continue;
 			double d = (x-points.get(i).x)*(x-points.get(i).x)+(y-points.get(i).y)*(y-points.get(i).y);
 			if(d<min){
-				d=min;
+				min=d;
 				indexMin=i;
 			}
 		}

@@ -1,5 +1,8 @@
 package home.mutant.opencl.multilayer.runners;
 
+import java.util.List;
+
+import home.mutant.dl.models.Image;
 import home.mutant.dl.ui.ResultFrame;
 import home.mutant.dl.utils.MnistDatabase;
 import home.mutant.dl.utils.MnistDatabase.TYPE;
@@ -14,7 +17,7 @@ public class ObtainFiltersPooling {
 
 		long t0=System.currentTimeMillis();
 		int noIterations=50;
-		ObtainFilters  of = new ObtainFilters(MnistDatabase.trainImages.subList(0, 256*23), 5, 36, noIterations, 1, true);
+		ObtainFilters  of = new ObtainFilters(MnistDatabase.trainImages.subList(0, 256*234), 5, 36, noIterations, 1, true);
 		of.cluster();
 		long t=System.currentTimeMillis()-t0;
 		ResultFrame frame = new ResultFrame(1600, 800);
@@ -36,6 +39,10 @@ public class ObtainFiltersPooling {
 		}
 		System.out.println("FPS:" + (1000.*frames/(System.currentTimeMillis()-t0)));
 		af.copyDtoH();
+		List<Image> arrangedImages = af.getArrangedImages();
+		ResultFrame frame2 = new ResultFrame(1600, 800);
+		frame2.showImages(arrangedImages,6);	
+
 		af.release();
  	}
 }

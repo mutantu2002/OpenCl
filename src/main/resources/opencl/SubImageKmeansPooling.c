@@ -28,16 +28,16 @@ __kernel void updateCenters(__global float *centers, __global const float *image
 			min=FLT_MAX;
 			minCenterIndex=0;
 
-			for(imageX=imagePX;imageX<=imagePX+DIM_POOLING-DIM_FILTER;imageX+=STRIDE)
+			for(imageX=0;imageX<=DIM_POOLING-DIM_FILTER;imageX+=STRIDE)
 			{
-				for(imageY=imagePY;imageY<=imagePY+DIM_POOLING-DIM_FILTER;imageY+=STRIDE)
+				for(imageY=0;imageY<=DIM_POOLING-DIM_FILTER;imageY+=STRIDE)
 				{
 					index=0;
 					for(filterX=0;filterX<DIM_FILTER;filterX++)
 					{
 						for(filterY=0;filterY<DIM_FILTER;filterY++)
 						{
-							subImageBuffer[index++] = images[imagesOffset+(imageY+filterY)+(imageX+filterX)*DIM_IMAGE];
+							subImageBuffer[index++] = images[imagesOffset+(imageY+imagePY+filterY)+(imageX+imagePX+filterX)*DIM_IMAGE];
 						}
 					}
 
@@ -53,8 +53,8 @@ __kernel void updateCenters(__global float *centers, __global const float *image
 						{
 							min = sum;
 							minCenterIndex = centersIndex;
-							minX=imageX;
-							minY=imageY;
+							minX=imageX+imagePX;
+							minY=imageY+imagePY;
 						}
 					}
 
