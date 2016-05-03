@@ -17,11 +17,12 @@ public class ObtainFiltersPooling {
 
 		long t0=System.currentTimeMillis();
 		int noIterations=50;
-		ObtainFilters  of = new ObtainFilters(MnistDatabase.trainImages.subList(0, 256*234), 5, 36, noIterations, 1, true);
+		int noClusters = 36;
+		ObtainFilters  of = new ObtainFilters(MnistDatabase.trainImages.subList(0, 256*234), 5, noClusters, noIterations, 1, true);
 		of.cluster();
 		long t=System.currentTimeMillis()-t0;
 		ResultFrame frame = new ResultFrame(1600, 800);
-		frame.showImages(of.getClusterImages(),6);
+		frame.showImages(of.getClusterImages(),(int) Math.sqrt(noClusters));
 		System.out.println(1000.*noIterations/t+" it/sec");
 		
 		System.out.println("Arrange filters...");
@@ -41,7 +42,7 @@ public class ObtainFiltersPooling {
 		af.copyDtoH();
 		List<Image> arrangedImages = af.getArrangedImages();
 		ResultFrame frame2 = new ResultFrame(1600, 800);
-		frame2.showImages(arrangedImages,6);	
+		frame2.showImages(arrangedImages,(int) Math.sqrt(noClusters));	
 
 		af.release();
  	}
