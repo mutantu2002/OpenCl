@@ -19,13 +19,13 @@ public class ObtainFilters {
 	List<Image> clusterImages = new ArrayList<>();
 	int noIterations;
 	int noClusters;
-	int batchItems = 256*234;
+	int batchItems = 256*39*4;
 	int stride=1;
 	boolean withPooling=false;
 	float[] inputImages;
 	float[] clustersCenters;
 	float[] clustersUpdates;
-	
+	int stridePooling = 2;
 	Program program;
 	
 	MemoryFloat memClusters;
@@ -159,7 +159,7 @@ public class ObtainFilters {
 	}
 	private void prepareOpenCl(){
 		int dimImage = (int)Math.sqrt(imageSize);
-		int dimPooling = 2*dimFilter;
+		int dimPooling = dimFilter+stridePooling;
 		if(dimPooling>dimImage)dimPooling = dimImage;
 		
 		Map<String, Object> params = new HashMap<>();
@@ -170,7 +170,7 @@ public class ObtainFilters {
 		params.put("DIM_POOLING", dimPooling);
 		params.put("DIM_IMAGE", dimImage);
 		params.put("STRIDE", stride);
-		params.put("STRIDE_POOLING", dimFilter);
+		params.put("STRIDE_POOLING", stridePooling);
 		
 		String resource="/opencl/SubImageKmeans2.c";
 		if(withPooling)resource = "/opencl/SubImageKmeansPooling.c";
