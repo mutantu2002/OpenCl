@@ -47,7 +47,7 @@ public class OneLayer {
 	}
 	public void transform(){
 		System.out.println("Obtain filters...");
-		ObtainFilters  of = new ObtainFilters(inImages, dimFilter, noFilters, 40, strideFilters);
+		ObtainFilters  of = new ObtainFilters(inImages, dimFilter, noFilters, 40, strideFilters,true);
 		of.cluster();
 		
 		System.out.println("Arrange filters...");

@@ -19,7 +19,7 @@ public class ObtainFilters {
 	List<Image> clusterImages = new ArrayList<>();
 	int noIterations;
 	int noClusters;
-	int batchItems = 256*39*4;
+	int batchItems = 256*39;
 	int stride=1;
 	boolean withPooling=false;
 	float[] inputImages;
@@ -51,7 +51,7 @@ public class ObtainFilters {
 		inputImages= new float[imageSize*batchItems];
 		
 		clustersCenters = new float[dimFilter*dimFilter*noClusters];
-		randomizeClusters();
+		randomizeClusters2();
 		clustersUpdates = new float[(dimFilter*dimFilter+1)*noClusters*batchItems];
 	}
 	public void cluster(){
