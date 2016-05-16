@@ -1,7 +1,7 @@
 __kernel void transform(__global float const *images,__global float *filters,__global float *x, __global float *y, __global float *z, __global float *w,
 		__global float *transformedImages)
 {
-	int transDimImage = 2*((DIM_IMAGE - DIM_FILTER)/STRIDE+1);
+	int transDimImage = 2*((DIM_IMAGE - DIM_POOLING)/STRIDE+1);
 	float min;
 	int minCenterIndex;
 	int sum;
@@ -21,24 +21,24 @@ __kernel void transform(__global float const *images,__global float *filters,__g
 	int imagePY;
 	float subImageBuffer[FILTER_SIZE];
 
-	for(imagePX=0;imagePX<=DIM_IMAGE-DIM_POOLING;imagePX+=STRIDE_POOLING)
+	for(imagePX=0;imagePX<=DIM_IMAGE-DIM_POOLING;imagePX+=STRIDE)
 	{
-		for(imagePY=0;imagePY<=DIM_IMAGE-DIM_POOLING;imagePY+=STRIDE_POOLING)
+		transY=0;
+		for(imagePY=0;imagePY<=DIM_IMAGE-DIM_POOLING;imagePY+=STRIDE)
 		{
 			min=FLT_MAX;
 			minCenterIndex=0;
 			
-			for(imageX=0;imageX<=DIM_POOLING-DIM_FILTER;imageX+=STRIDE)
+			for(imageX=0;imageX<=DIM_POOLING-DIM_FILTER;imageX+=1)
 			{
-				transY=0;
-				for(imageY=0;imageY<=DIM_POOLING-DIM_FILTER;imageY+=STRIDE)
+				for(imageY=0;imageY<=DIM_POOLING-DIM_FILTER;imageY+=1)
 				{
 					index=0;
 					for(filterX=0;filterX<DIM_FILTER;filterX++)
 					{
 						for(filterY=0;filterY<DIM_FILTER;filterY++)
 						{
-							subImageBuffer[index++] = images[imagesOffset+(imageY+filterY)+(imageX+filterX)*DIM_IMAGE];
+							subImageBuffer[index++] = images[imagesOffset+(imageY+imagePY+filterY)+(imageX+imagePX+filterX)*DIM_IMAGE];
 						}
 					}
 

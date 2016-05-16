@@ -28,7 +28,7 @@ public class ML2Layers {
 //		MeanPollingImages mpt = new MeanPollingImages(testImages);
 //		mpt.transform();
 		
-		OneLayer ol2 = new OneLayer(ol.getOutImages(),1024,2,2,4,2);
+		OneLayer ol2 = new OneLayer(ol.getOutImages(),1024,2,2,4,2,false);
 		ol2.transform();
 		testImages = ol2.transform(testImages);
 		

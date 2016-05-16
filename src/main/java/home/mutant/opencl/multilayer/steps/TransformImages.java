@@ -38,7 +38,9 @@ public class TransformImages {
 	float[] allFilters;
 	float[] allTransformed;
 	
-	public TransformImages(List<Image> images, ArrangeFilters4D filters, int stride) {
+	boolean withPooling = false;
+	
+	public TransformImages(List<Image> images, ArrangeFilters4D filters, int stride, boolean withPooling) {
 		super();
 		this.images = images;
 		this.filters = filters;
@@ -48,6 +50,8 @@ public class TransformImages {
 		this.dimImage = (int) Math.sqrt(imageSize);
 		this.dimFilter = (int) Math.sqrt(filterSize);
 		int dimTransSize=2*((dimImage - dimFilter)/stride+1);
+		this.withPooling = withPooling;
+		if(withPooling)dimTransSize=2*((dimImage - dimFilter-1)/stride+1);
 		this.transformImageSize=dimTransSize*dimTransSize;
 	}
 	public void transform(){
@@ -74,7 +78,10 @@ public class TransformImages {
 		params.put("DIM_FILTER", dimFilter);
 		params.put("DIM_IMAGE", dimImage);
 		params.put("STRIDE", stride);
-		program = new Program(Program.readResource("/opencl/TransformImages4DFloat.c"),params);		
+		params.put("DIM_POOLING", dimFilter+1);
+		String resource = "/opencl/TransformImages4DFloat.c";
+		if(this.withPooling) resource= "/opencl/TransformImages4DFloatPooling.c";
+		program = new Program(Program.readResource(resource),params);		
 		
 		allImages = new float[imageSize*images.size()];
 		allFilters = new float[filterSize*filters.images.size()];

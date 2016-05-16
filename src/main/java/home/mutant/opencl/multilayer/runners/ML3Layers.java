@@ -22,13 +22,13 @@ public class ML3Layers {
 		ResultFrame frame = new ResultFrame(800, 800);
 		frame.showImages(ol.getOutImages().subList(0, 256), 16);
 		
-		OneLayer ol2 = new OneLayer(ol.getOutImages(),1024,2,2,4,2);
+		OneLayer ol2 = new OneLayer(ol.getOutImages(),1024,2,2,4,2,false);
 		ol2.transform();
 		testImages = ol2.transform(testImages);
 		ResultFrame framef = new ResultFrame(800, 800);
 		framef.showImages(ol2.getFilters().subList(0, 256), 16);
 	
-		OneLayer ol3 = new OneLayer(ol2.getOutImages(),2048,2,2,4,2);
+		OneLayer ol3 = new OneLayer(ol2.getOutImages(),2048,2,2,4,2,false);
 		ol3.transform();
 		testImages = ol3.transform(testImages);
 		ResultFrame framef3 = new ResultFrame(800, 800);

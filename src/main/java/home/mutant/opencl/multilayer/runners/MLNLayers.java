@@ -15,7 +15,7 @@ public class MLNLayers {
 	public static void main(String[] args) throws Exception {
 		MnistDatabase.IMAGE_TYPE = TYPE.FLOAT;
 		MnistDatabase.loadImagesPadded(6);
-		OneLayer ol = new OneLayer(MnistDatabase.trainImages,1024,2,1,3,3);
+		OneLayer ol = new OneLayer(MnistDatabase.trainImages,1024,2,1,3,3,false);
 		ol.transform();
 		List<Image> testImages = ol.transform(MnistDatabase.testImages);
 		
@@ -23,7 +23,7 @@ public class MLNLayers {
 		frame.showImages(ol.getOutImages().subList(0, 256), 16);
 		
 		for(int l=0;l<6;l++){
-			OneLayer ol2 = new OneLayer(ol.getOutImages(),1024,2,2,4,2);
+			OneLayer ol2 = new OneLayer(ol.getOutImages(),1024,2,2,4,2,false);
 			ol2.transform();
 			testImages = ol2.transform(testImages);
 			ol=ol2;

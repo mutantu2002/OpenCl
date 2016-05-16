@@ -18,6 +18,8 @@ public class OneLayer {
 	int noFilters = 256;
 	ArrangeFilters4D af;
 	
+	boolean withPooling;
+	
 	public OneLayer(List<Image> inImages) {
 		super();
 		this.inImages = inImages;
@@ -36,7 +38,7 @@ public class OneLayer {
 		this.dimFilter = dimFilter;
 		this.scaleDistances = scaleDistances;
 	}
-	public OneLayer(List<Image> inImages, int noFilters, int strideTransform, int strideFilters, int dimFilter, int scaleDistances) {
+	public OneLayer(List<Image> inImages, int noFilters, int strideTransform, int strideFilters, int dimFilter, int scaleDistances, boolean withPooling) {
 		super();
 		this.inImages = inImages;
 		this.strideTransform = strideTransform;
@@ -44,10 +46,11 @@ public class OneLayer {
 		this.dimFilter = dimFilter;
 		this.scaleDistances = scaleDistances;
 		this.noFilters = noFilters;
+		this.withPooling = withPooling;
 	}
 	public void transform(){
 		System.out.println("Obtain filters...");
-		ObtainFilters  of = new ObtainFilters(inImages, dimFilter, noFilters, 40, strideFilters,true);
+		ObtainFilters  of = new ObtainFilters(inImages, dimFilter, noFilters, 40, strideFilters,withPooling);
 		of.cluster();
 		
 		System.out.println("Arrange filters...");
@@ -70,13 +73,13 @@ public class OneLayer {
 		af.release();
 		
 		System.out.println("Transform images...");
-		TransformImages  ti = new TransformImages(inImages, af,strideTransform);
+		TransformImages  ti = new TransformImages(inImages, af,strideTransform, withPooling);
 		ti.transform();
 		outImages = ti.getTransformedImages();
 		
 	}
 	public List<Image> transform(List<Image> testImages){
-		TransformImages  ti = new TransformImages(testImages, af,strideTransform);
+		TransformImages  ti = new TransformImages(testImages, af,strideTransform, withPooling);
 		ti.transform();
 		return ti.getTransformedImages();
 	}
