@@ -1,4 +1,4 @@
-package home.mutant.opencl.multilayer.steps;
+package home.mutant.opencl.dot.steps;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -12,7 +12,7 @@ import home.mutant.opencl.model.Kernel;
 import home.mutant.opencl.model.MemoryFloat;
 import home.mutant.opencl.model.Program;
 
-public class ObtainFilters {
+public class ObtainFiltersDot {
 	List<Image> images;
 	int dimFilter;
 	int imageSize;
@@ -21,7 +21,6 @@ public class ObtainFilters {
 	int noClusters;
 	int batchItems = 256*3;
 	int stride=1;
-	boolean withPooling=false;
 	float[] inputImages;
 	float[] clustersCenters;
 	float[] clustersUpdates;
@@ -33,25 +32,23 @@ public class ObtainFilters {
 	MemoryFloat memUpdates;
 	Kernel updateCenters;
 	
-	public ObtainFilters(List<Image> images, int dimFilter, int noClusters, int noIterations) {
-		this(images, dimFilter, noClusters, noIterations, 1, false);
+	public ObtainFiltersDot(List<Image> images, int dimFilter, int noClusters, int noIterations) {
+		this(images, dimFilter, noClusters, noIterations, 1);
 	}
-	public ObtainFilters(List<Image> images, int dimFilter, int noClusters, int noIterations,int stride){
-		this(images, dimFilter, noClusters, noIterations, stride, false);
-	}
-	public ObtainFilters(List<Image> images, int dimFilter, int noClusters, int noIterations,int stride, boolean withPooling) {
+
+	public ObtainFiltersDot(List<Image> images, int dimFilter, int noClusters, int noIterations,int stride) {
 		super();
 		this.images = images;
 		this.dimFilter = dimFilter;
 		this.noIterations = noIterations;
 		this.noClusters = noClusters;
 		this.stride = stride;
-		this.withPooling = withPooling;
 		this.imageSize = images.get(0).getDataFloat().length;
 		inputImages= new float[imageSize*batchItems];
 		
 		clustersCenters = new float[dimFilter*dimFilter*noClusters];
-		randomizeClusters2();
+		randomizeClusters();
+		subtractMeanClusters();
 		clustersUpdates = new float[(dimFilter*dimFilter+1)*noClusters*batchItems];
 	}
 	public void cluster(){
@@ -70,6 +67,7 @@ public class ObtainFilters {
 			System.out.println(iteration);
 			memUpdates.copyDtoH();
 			reduceCenters();
+			subtractMeanClusters();
 			memClusters.copyHtoD();
 		}
 		releaseOpenCl();
@@ -94,36 +92,31 @@ public class ObtainFilters {
 				for(int j=0;j<dimFilter*dimFilter;j++){
 					clustersCenters[clusterOffset+j]/=noUpdates;
 				}
+			}else{
+				System.out.println("Oops unused cluster");
 			}
 		}
-		
-		/* combine clusters 2D - not working well...
-		int dimNoClusters=(int) Math.sqrt(noClusters);
-		float influence=10f;
-		int filterSize = dimFilter*dimFilter;
-		
-		for (int i=0;i<noClusters;i++){
-			int offsetCenterX=i%dimNoClusters;
-			int offsetCenterY=i/dimNoClusters;
-			
-			int offsetCenterX1=(offsetCenterX+1)%dimNoClusters;
-			int offsetCenterY1=(offsetCenterY+1)%dimNoClusters;
-			int offsetCenterX_1=(offsetCenterX+dimNoClusters-1)%dimNoClusters;
-			int offsetCenterY_1=(offsetCenterY+dimNoClusters-1)%dimNoClusters;
-			int clusterOffset = filterSize*i;
-			for(int j=0;j<filterSize;j++){
-				clustersUpdates[clusterOffset+j]=influence*clustersCenters[clusterOffset+j];
-				clustersUpdates[clusterOffset+j]+=clustersCenters[(offsetCenterY*dimNoClusters+offsetCenterX1)*filterSize+j];
-				clustersUpdates[clusterOffset+j]+=clustersCenters[(offsetCenterY*dimNoClusters+offsetCenterX_1)*filterSize+j];
-				clustersUpdates[clusterOffset+j]+=clustersCenters[(offsetCenterY1*dimNoClusters+offsetCenterX)*filterSize+j];
-				clustersUpdates[clusterOffset+j]+=clustersCenters[(offsetCenterY_1*dimNoClusters+offsetCenterX)*filterSize+j];
-				clustersUpdates[clusterOffset+j]/=influence+4;
-			}
-		}
-		System.arraycopy(clustersUpdates, 0, clustersCenters, 0,  filterSize*noClusters);
-		*/
 	}
-	@SuppressWarnings("unused")
+	private void subtractMeanClusters(){
+		for (int i=0;i<noClusters;i++){
+			int clusterOffset = dimFilter*dimFilter*i;
+			double mean=0;
+			double lenght=0;
+			for(int j=0;j<dimFilter*dimFilter;j++){
+				mean+=clustersCenters[clusterOffset+j];
+			}
+			
+			mean/=dimFilter*dimFilter;
+			for(int j=0;j<dimFilter*dimFilter;j++){
+				clustersCenters[clusterOffset+j]-=mean;
+				lenght+=clustersCenters[clusterOffset+j]*clustersCenters[clusterOffset+j];
+			}
+			lenght = Math.sqrt(lenght);
+			for(int j=0;j<dimFilter*dimFilter;j++){
+				clustersCenters[clusterOffset+j]/=lenght;
+			}
+		}
+	}
 	private void randomizeClusters() {
 		for (int i = 0; i < clustersCenters.length; i++) {
 			clustersCenters[i] = (float) (Math.random()*256);
@@ -173,9 +166,7 @@ public class ObtainFilters {
 		params.put("STRIDE", stride);
 		params.put("STRIDE_POOLING", dimFilter);
 		
-		String resource="/opencl/SubImageKmeans2.c";
-		if(withPooling)resource = "/opencl/SubImageKmeansPooling.c";
-		program = new Program(Program.readResource(resource),params);
+		program = new Program(Program.readResource("/dot/SubImageKmeansDotProduct.c"),params);
 		
 		memClusters = new MemoryFloat(program);
 		memClusters.addReadWrite(clustersCenters);
@@ -199,8 +190,18 @@ public class ObtainFilters {
 	private void constructImageClusters(){
 		for (int i=0;i<noClusters;i++) {
 			Image image = new ImageFloat(dimFilter*dimFilter);
-			System.arraycopy(memClusters.getSrc(), i*dimFilter*dimFilter, image.getDataFloat(), 0, dimFilter*dimFilter);
+			double max = -1*Double.MAX_VALUE;
+			double min = Double.MAX_VALUE;
+			int clusterOffset = dimFilter*dimFilter*i;
+			for (int j = 0; j < dimFilter*dimFilter; j++) {
+				if (clustersCenters[clusterOffset+j]>max)max=clustersCenters[clusterOffset+j];
+				if (clustersCenters[clusterOffset+j]<min)min=clustersCenters[clusterOffset+j];
+			}
+			max=255/(max-min);
+			for (int j = 0; j < dimFilter*dimFilter; j++) {
+				image.getDataFloat()[j]=(float) ((clustersCenters[clusterOffset+j]-min)*max);
+			}
 			clusterImages.add(image);
-		}
+		}			
 	}
 }
