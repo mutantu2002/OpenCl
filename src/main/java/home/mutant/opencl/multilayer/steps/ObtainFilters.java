@@ -19,7 +19,7 @@ public class ObtainFilters {
 	List<Image> clusterImages = new ArrayList<>();
 	int noIterations;
 	int noClusters;
-	int batchItems = 256*39;
+	int batchItems = 256*3;
 	int stride=1;
 	boolean withPooling=false;
 	float[] inputImages;
@@ -146,7 +146,7 @@ public class ObtainFilters {
 	}
 	private boolean okToAdd(List<Image> filters, Image newFilter){
 		for (Image image : filters) {
-			if(d(image,newFilter)<10) return false;
+			if(d(image,newFilter)<100) return false;
 		}
 		return true;
 	}

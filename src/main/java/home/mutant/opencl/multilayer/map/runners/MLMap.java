@@ -15,19 +15,19 @@ public class MLMap {
 	public static void main(String[] args) throws Exception {
 		MnistDatabase.IMAGE_TYPE = TYPE.FLOAT;
 		MnistDatabase.loadImages();
-		images=MnistDatabase.trainImages;
+		images=MnistDatabase.trainImages.subList(0, 256*3);
 //		step(5,36,1);
 //		step(12,25,6);
 //		step(10,16,5);
 //		step(8,9,4);
 //		step(6,4,3);
-		step(3,36,1);
-		for(int i=0;i<3;i++)
-			step(18,36,12);
+		step(4,25,1);
+		for(int i=0;i<6;i++)
+			step(15,25,5);
 	}
 	
 	public static void step(int dimFilter, int noClusters, int stride){
-		ObtainFilters of = new ObtainFilters(images, dimFilter, noClusters, 5, stride);
+		ObtainFilters of = new ObtainFilters(images, dimFilter, noClusters, 20, stride, false);
 		of.cluster();
 		ResultFrame frame = new ResultFrame(800, 800);
 		frame.showImages(of.getClusterImages(),(int) Math.sqrt(of.getClusterImages().size()));

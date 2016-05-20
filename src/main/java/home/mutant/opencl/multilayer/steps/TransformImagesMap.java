@@ -22,7 +22,7 @@ public class TransformImagesMap {
 	int dimFilter;
 	int dimImage;
 	int dimNoClusters;
-	int batchItems=256*39;
+	int batchItems=256*3;
 	private MemoryFloat memImages;
 	private MemoryFloat memFilters;
 	private MemoryFloat memTransformed;
