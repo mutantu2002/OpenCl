@@ -19,7 +19,7 @@ public class ObtainFiltersDot {
 	List<Image> clusterImages = new ArrayList<>();
 	int noIterations;
 	int noClusters;
-	int batchItems = 256*3;
+	int batchItems = 256*39;
 	int stride=1;
 	float[] inputImages;
 	float[] clustersCenters;
@@ -164,7 +164,7 @@ public class ObtainFiltersDot {
 		params.put("DIM_POOLING", dimPooling);
 		params.put("DIM_IMAGE", dimImage);
 		params.put("STRIDE", stride);
-		params.put("STRIDE_POOLING", dimFilter);
+		params.put("STRIDE_POOLING", stridePooling);
 		
 		program = new Program(Program.readResource("/dot/SubImageKmeansDotProduct.c"),params);
 		

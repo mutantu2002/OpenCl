@@ -1,4 +1,4 @@
-__kernel void updateCenters(__global float *centers, __global const float *images, __global float *updates)
+__kernel void updateCenters(__global float *centers, __global const float *images, __global float *updates, __local float *centersLocal )
 {
 	int imagesOffset = get_global_id(0)*IMAGE_SIZE;
 	
@@ -61,17 +61,13 @@ __kernel void updateCenters(__global float *centers, __global const float *image
 			}
 
 			index=0;
+			maxCenterIndex = (FILTER_SIZE+1)*maxCenterIndex;
 			for(filterX=0;filterX<DIM_FILTER;filterX++)
 			{
 				for(filterY=0;filterY<DIM_FILTER;filterY++)
 				{
-					subImageBuffer[index++] = images[imagesOffset+(maxY+filterY)+(maxX+filterX)*DIM_IMAGE];
+					updates[updatesOffset+maxCenterIndex+index++]+= images[imagesOffset+(maxY+filterY)+(maxX+filterX)*DIM_IMAGE];
 				}
-			}
-			maxCenterIndex = (FILTER_SIZE+1)*maxCenterIndex;
-			for(index=0;index<FILTER_SIZE;index++)
-			{
-				updates[updatesOffset+maxCenterIndex+index]+= subImageBuffer[index];
 			}
 			updates[updatesOffset+maxCenterIndex+FILTER_SIZE]+=1;
 		}
