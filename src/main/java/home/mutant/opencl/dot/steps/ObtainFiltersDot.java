@@ -19,7 +19,7 @@ public class ObtainFiltersDot {
 	List<Image> clusterImages = new ArrayList<>();
 	int noIterations;
 	int noClusters;
-	int batchItems = 256*39;
+	int batchItems = 256*3;
 	int stride=1;
 	float[] inputImages;
 	float[] clustersCenters;

@@ -13,8 +13,8 @@ public class ObtainFiltersDotProduct {
 
 		long t0=System.currentTimeMillis();
 		int noIterations=20;
-		int noClusters = 64;
-		ObtainFiltersDot  of = new ObtainFiltersDot(MnistDatabase.trainImages.subList(0, 256*234), 7, noClusters, noIterations, 1);
+		int noClusters = 16;
+		ObtainFiltersDot  of = new ObtainFiltersDot(MnistDatabase.trainImages.subList(0, 256*234), 6, noClusters, noIterations, 1);
 		of.cluster();
 		long t=System.currentTimeMillis()-t0;
 		ResultFrame frame = new ResultFrame(1600, 800);

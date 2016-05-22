@@ -1,4 +1,4 @@
-__kernel void updateCenters(__global float *centers, __global const float *images, __global float *updates, __local float *centersLocal )
+__kernel void updateCenters(__global const float *centers, __global const float *images, __global float *updates )
 {
 	int imagesOffset = get_global_id(0)*IMAGE_SIZE;
 	
@@ -7,7 +7,6 @@ __kernel void updateCenters(__global float *centers, __global const float *image
 	
 	float sum=0;
 	int index=0;
-	float weight;
 	float max;
 	int maxCenterIndex;
 	
@@ -20,7 +19,17 @@ __kernel void updateCenters(__global float *centers, __global const float *image
 	int maxX=0;
 	int maxY=0;
 	float subImageBuffer[FILTER_SIZE];
-	
+/*
+	__local float centersLocal[NO_CLUSTERS*FILTER_SIZE];
+	if(get_local_id(0)<NO_CLUSTERS)
+	{
+		for(index=0;index<FILTER_SIZE;index++)
+		{
+			centersLocal[get_local_id(0)*FILTER_SIZE+index]=centers[get_local_id(0)*FILTER_SIZE+index];
+		}
+	}
+	barrier(CLK_LOCAL_MEM_FENCE);
+*/
 	for(imagePX=0;imagePX<=DIM_IMAGE-DIM_POOLING;imagePX+=STRIDE_POOLING)
 	{
 		for(imagePY=0;imagePY<=DIM_IMAGE-DIM_POOLING;imagePY+=STRIDE_POOLING)
