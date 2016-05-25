@@ -3,19 +3,22 @@ __kernel void transform(__global float const *images,__global float const *filte
 	double sum;
 	int globalIndex=get_global_id(0);
 	int imagesOffset = globalIndex*IMAGE_SIZE;
-	int transImagesOffset = globalIndex*((DIM_IMAGE_Y - DIM_FILTER)/STRIDE+1)*((DIM_IMAGE_X - DIM_FILTER)/STRIDE+1)*NO_CLUSTERS;
+	int dimTransX = ((DIM_IMAGE_X - DIM_FILTER)/STRIDE+1);
+	int dimTransY = ((DIM_IMAGE_Y - DIM_FILTER)/STRIDE+1);
+	int transImagesOffset = globalIndex*dimTransY*dimTransX*NO_CLUSTERS;
 	int imageX;
 	int imageY;
 	int filterX;
 	int filterY;
 	int index;
 	int centerIndex;
-	int trans=0;
-	
+	int transX=0;
+	int transY=0;
 	float subImageBuffer[FILTER_SIZE];
 
 	for(imageY=0;imageY<=DIM_IMAGE_Y-DIM_FILTER;imageY+=STRIDE)
 	{
+		transX=0;
 		for(imageX=0;imageX<=DIM_IMAGE_X-DIM_FILTER;imageX+=STRIDE)
 		{
 			index=0;
@@ -33,8 +36,13 @@ __kernel void transform(__global float const *images,__global float const *filte
 				{
 					sum+= filters[centerIndex*FILTER_SIZE+index]*subImageBuffer[index];
 				}
-				transformedImages[transImagesOffset+trans++]=sum/FILTER_SIZE;
+				if(sum>0)
+					transformedImages[transImagesOffset+transY*dimTransX*NO_CLUSTERS+transX+centerIndex*dimTransX]=sum/4;
+				else
+					transformedImages[transImagesOffset+transY*dimTransX*NO_CLUSTERS+transX+centerIndex*dimTransX]=0;
 			}
+			transX++;
 		}
+		transY++;
 	}
 }

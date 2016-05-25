@@ -30,23 +30,23 @@ __kernel void updateCenters(__global const float *centers, __global const float 
 	}
 	barrier(CLK_LOCAL_MEM_FENCE);
 */
-	for(imagePX=0;imagePX<=DIM_IMAGE-DIM_POOLING;imagePX+=STRIDE_POOLING)
+	for(imagePX=0;imagePX<=DIM_IMAGE_X-DIM_POOLING_X;imagePX+=STRIDE_POOLING_X)
 	{
-		for(imagePY=0;imagePY<=DIM_IMAGE-DIM_POOLING;imagePY+=STRIDE_POOLING)
+		for(imagePY=0;imagePY<=DIM_IMAGE_Y-DIM_POOLING_Y;imagePY+=STRIDE_POOLING_Y)
 		{
 			max=-FLT_MAX;
 			maxCenterIndex=0;
 
-			for(imageX=0;imageX<=DIM_POOLING-DIM_FILTER;imageX+=STRIDE)
+			for(imageX=0;imageX<=DIM_POOLING_X-DIM_FILTER_X;imageX+=STRIDE_X)
 			{
-				for(imageY=0;imageY<=DIM_POOLING-DIM_FILTER;imageY+=STRIDE)
+				for(imageY=0;imageY<=DIM_POOLING_Y-DIM_FILTER_Y;imageY+=STRIDE_Y)
 				{
 					index=0;
-					for(filterX=0;filterX<DIM_FILTER;filterX++)
+					for(filterY=0;filterY<DIM_FILTER_Y;filterY++)
 					{
-						for(filterY=0;filterY<DIM_FILTER;filterY++)
+						for(filterX=0;filterX<DIM_FILTER_X;filterX++)
 						{
-							subImageBuffer[index++] = images[imagesOffset+(imageY+imagePY+filterY)+(imageX+imagePX+filterX)*DIM_IMAGE];
+							subImageBuffer[index++] = images[imagesOffset+(imageY+imagePY+filterY)*DIM_IMAGE_X+(imageX+imagePX+filterX)];
 						}
 					}
 
@@ -71,11 +71,11 @@ __kernel void updateCenters(__global const float *centers, __global const float 
 
 			index=0;
 			maxCenterIndex = (FILTER_SIZE+1)*maxCenterIndex;
-			for(filterX=0;filterX<DIM_FILTER;filterX++)
+			for(filterY=0;filterY<DIM_FILTER_Y;filterY++)
 			{
-				for(filterY=0;filterY<DIM_FILTER;filterY++)
+				for(filterX=0;filterX<DIM_FILTER_X;filterX++)
 				{
-					updates[updatesOffset+maxCenterIndex+index++]+= images[imagesOffset+(maxY+filterY)+(maxX+filterX)*DIM_IMAGE];
+					updates[updatesOffset+maxCenterIndex+index++]+= images[imagesOffset+(maxY+filterY)*DIM_IMAGE_X+(maxX+filterX)];
 				}
 			}
 			updates[updatesOffset+maxCenterIndex+FILTER_SIZE]+=1;
