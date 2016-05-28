@@ -18,11 +18,12 @@ public class TransformImagesMapDot1D {
 	int imageSize;
 	int filterSize;
 	int transformImageSize;
-	int stride;
-	int dimFilter;
+	int strideX;
+	int strideY;
+	int dimFilterX;
+	int dimFilterY;
 	int dimImageX;
 	int dimImageY;
-	int dimNoClusters;
 	int dimTransSizeX;
 	int dimTransSizeY;
 	int batchItems=256*3;
@@ -37,20 +38,29 @@ public class TransformImagesMapDot1D {
 	float[] allFilters;
 	float[] allTransformed;
 	
-	public TransformImagesMapDot1D(List<Image> images, List<Image> filters, int stride) {
-		super();
+	public TransformImagesMapDot1D(List<Image> images, List<Image> filters) {
 		this.images = images;
 		this.filters = filters;
-		this.stride = stride;
+	}
+	public TransformImagesMapDot1D build(){
 		this.imageSize = images.get(0).getDataFloat().length;
 		this.filterSize = filters.get(0).getDataFloat().length;
 		this.dimImageX = images.get(0).imageX;
 		this.dimImageY = images.get(0).imageY;
-		this.dimFilter = (int) Math.sqrt(filterSize);
-		this.dimNoClusters=(int) Math.sqrt(filters.size());
-		this.dimTransSizeX=filters.size()*((dimImageX - dimFilter)/stride+1);
-		this.dimTransSizeY=(dimImageY - dimFilter)/stride+1;
+		this.dimFilterX = filters.get(0).imageX;
+		this.dimFilterY = filters.get(0).imageY;
+		this.dimTransSizeX=filters.size()*((dimImageX - dimFilterX)/strideX+1);
+		this.dimTransSizeY=(dimImageY - dimFilterY)/strideY+1;
 		this.transformImageSize=dimTransSizeX*dimTransSizeY;
+		return this;
+	}
+	public TransformImagesMapDot1D setStrideX(int strideX){
+		this.strideX = strideX;
+		return this;
+	}
+	public TransformImagesMapDot1D setStrideY(int strideY){
+		this.strideY = strideY;
+		return this;
 	}
 	public void transform(){
 		prepareOpenCl();
@@ -78,11 +88,13 @@ public class TransformImagesMapDot1D {
 		Map<String, Object> params = new HashMap<>();
 		params.put("IMAGE_SIZE", imageSize);
 		params.put("FILTER_SIZE", filterSize);
-		params.put("DIM_FILTER", dimFilter);
+		params.put("DIM_FILTER_X", dimFilterX);
+		params.put("DIM_FILTER_Y", dimFilterY);
 		params.put("NO_CLUSTERS", filters.size());
 		params.put("DIM_IMAGE_X", dimImageX);
 		params.put("DIM_IMAGE_Y", dimImageY);
-		params.put("STRIDE", stride);
+		params.put("STRIDE_X", strideX);
+		params.put("STRIDE_Y", strideY);
 
 		program = new Program(Program.readResource("/dot/TransformImagesMapDot1DByCluster.c"),params);		
 		

@@ -3,8 +3,8 @@ __kernel void transform(__global float const *images,__global float const *filte
 	double sum;
 	int globalIndex=get_global_id(0);
 	int imagesOffset = globalIndex*IMAGE_SIZE;
-	int dimTransX = ((DIM_IMAGE_X - DIM_FILTER)/STRIDE+1);
-	int dimTransY = ((DIM_IMAGE_Y - DIM_FILTER)/STRIDE+1);
+	int dimTransX = ((DIM_IMAGE_X - DIM_FILTER_X)/STRIDE_X+1);
+	int dimTransY = ((DIM_IMAGE_Y - DIM_FILTER_Y)/STRIDE_Y+1);
 	int transImagesOffset = globalIndex*dimTransY*dimTransX*NO_CLUSTERS;
 	int imageX;
 	int imageY;
@@ -16,15 +16,15 @@ __kernel void transform(__global float const *images,__global float const *filte
 	int transY=0;
 	float subImageBuffer[FILTER_SIZE];
 
-	for(imageY=0;imageY<=DIM_IMAGE_Y-DIM_FILTER;imageY+=STRIDE)
+	for(imageY=0;imageY<=DIM_IMAGE_Y-DIM_FILTER_Y;imageY+=STRIDE_Y)
 	{
 		transX=0;
-		for(imageX=0;imageX<=DIM_IMAGE_X-DIM_FILTER;imageX+=STRIDE)
+		for(imageX=0;imageX<=DIM_IMAGE_X-DIM_FILTER_X;imageX+=STRIDE_X)
 		{
 			index=0;
-			for(filterY=0;filterY<DIM_FILTER;filterY++)
+			for(filterY=0;filterY<DIM_FILTER_Y;filterY++)
 			{
-				for(filterX=0;filterX<DIM_FILTER;filterX++)
+				for(filterX=0;filterX<DIM_FILTER_X;filterX++)
 				{
 					subImageBuffer[index++] = images[imagesOffset+(imageY+filterY)*DIM_IMAGE_X+(imageX+filterX)];
 				}
