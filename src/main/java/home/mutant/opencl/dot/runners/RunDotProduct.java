@@ -14,9 +14,9 @@ public class RunDotProduct {
 
 		long t0=System.currentTimeMillis();
 		int noIterations=5;
-		int noClusters = 16;
+		int noClusters = 9;
 		ObtainFiltersDot  of = new ObtainFiltersDot(MnistDatabase.trainImages.subList(0, 256*39)).
-				setDimFilterX(5).setDimFilterY(2).setNoClusters(noClusters).build();
+				setDimFilterX(4).setDimFilterY(4).setNoClusters(noClusters).build();
 		of.cluster();
 		long t=System.currentTimeMillis()-t0;
 		ResultFrame frame = new ResultFrame(1600, 800);
@@ -27,7 +27,7 @@ public class RunDotProduct {
 				.setStrideX(1).setStrideY(1).build();
 		ti.transform();
 		ResultFrame frame2 = new ResultFrame(1600, 800);
-		frame2.showImages(ti.getTransformedImages().subList(0, 16),4);
+		frame2.showImages(ti.getTransformedImages().subList(0, 16),2);
 
  	}
 }
