@@ -233,4 +233,8 @@ public class ObtainFiltersDot {
 			clusterImages.add(image);
 		}			
 	}
+	public ObtainFiltersDot setNoIterations(int noIterations) {
+		this.noIterations = noIterations;
+		return this;
+	}
 }
