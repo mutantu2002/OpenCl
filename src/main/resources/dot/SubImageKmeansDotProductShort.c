@@ -19,6 +19,7 @@ __kernel void updateCenters(__global const float *centers, __global const short 
 	int maxX=0;
 	int maxY=0;
 	short subImageBuffer[FILTER_SIZE];
+	bool okToProcess;
 
 	for(imagePX=0;imagePX<=DIM_IMAGE_X-DIM_POOLING_X;imagePX+=STRIDE_POOLING_X)
 	{
@@ -32,14 +33,17 @@ __kernel void updateCenters(__global const float *centers, __global const short 
 				for(imageY=0;imageY<=DIM_POOLING_Y-DIM_FILTER_Y;imageY+=STRIDE_Y)
 				{
 					index=0;
+					okToProcess=false;
 					for(filterY=0;filterY<DIM_FILTER_Y;filterY++)
 					{
 						for(filterX=0;filterX<DIM_FILTER_X;filterX++)
 						{
-							subImageBuffer[index++] = images[imagesOffset+(imageY+imagePY+filterY)*DIM_IMAGE_X+(imageX+imagePX+filterX)];
+							subImageBuffer[index] = images[imagesOffset+(imageY+imagePY+filterY)*DIM_IMAGE_X+(imageX+imagePX+filterX)];
+							if(subImageBuffer[index]!=0)okToProcess=true;
+							index++;
 						}
 					}
-
+					if(!okToProcess) continue;
 					for(centersIndex=0;centersIndex<NO_CLUSTERS;centersIndex++)
 					{
 						sum = 0;
