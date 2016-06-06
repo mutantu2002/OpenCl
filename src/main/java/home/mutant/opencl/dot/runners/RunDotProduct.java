@@ -13,7 +13,7 @@ public class RunDotProduct {
  		MnistDatabase.loadImages();
 
 		long t0=System.currentTimeMillis();
-		int noIterations=100;
+		int noIterations=10;
 		int noClusters = 9;
 		ObtainFiltersDot  of = new ObtainFiltersDot(MnistDatabase.trainImages.subList(0, 256*39)).
 				setDimFilterX(4).setDimFilterY(4).setNoClusters(noClusters).setNoIterations(noIterations).build();
