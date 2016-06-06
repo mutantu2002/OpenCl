@@ -29,11 +29,11 @@ public class MemoryInt {
 	}
 	public void copyDtoH()
 	{
-        clEnqueueReadBuffer(program.getCommandQueue(), clMemObject, CL_TRUE, 0,  src.length * Sizeof.cl_float, Pointer.to(src), 0, null, null);
+        clEnqueueReadBuffer(program.getCommandQueue(), clMemObject, CL_TRUE, 0,  src.length * Sizeof.cl_int, Pointer.to(src), 0, null, null);
 	}
 	public int copyHtoD()
 	{
-        return clEnqueueWriteBuffer(program.getCommandQueue(), clMemObject, CL_TRUE, 0,  src.length * Sizeof.cl_float, Pointer.to(src), 0, null, null);
+        return clEnqueueWriteBuffer(program.getCommandQueue(), clMemObject, CL_TRUE, 0,  src.length * Sizeof.cl_int, Pointer.to(src), 0, null, null);
 	}
 	public int[] getSrc() {
 		return src;
