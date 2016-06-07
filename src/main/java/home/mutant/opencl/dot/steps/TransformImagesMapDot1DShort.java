@@ -6,12 +6,13 @@ import java.util.List;
 import java.util.Map;
 
 import home.mutant.dl.models.Image;
-import home.mutant.dl.models.ImageFloat;
+import home.mutant.dl.models.ImageShort;
 import home.mutant.opencl.model.Kernel;
 import home.mutant.opencl.model.MemoryFloat;
+import home.mutant.opencl.model.MemoryShort;
 import home.mutant.opencl.model.Program;
 
-public class TransformImagesMapDot1D {
+public class TransformImagesMapDot1DShort {
 	List<Image> images;
 	List<Image> filters;
 	List<Image> transformedImages = new ArrayList<Image>();
@@ -27,23 +28,23 @@ public class TransformImagesMapDot1D {
 	int dimTransSizeX;
 	int dimTransSizeY;
 	int batchItems=256*3;
-	private MemoryFloat memImages;
+	private MemoryShort memImages;
 	private MemoryFloat memFilters;
-	private MemoryFloat memTransformed;
+	private MemoryShort memTransformed;
 	
 	private Kernel transform;
 	private Program program;
 	
-	float[] allImages;
+	short[] allImages;
 	float[] allFilters;
-	float[] allTransformed;
+	short[] allTransformed;
 	
-	public TransformImagesMapDot1D(List<Image> images, List<Image> filters) {
+	public TransformImagesMapDot1DShort(List<Image> images, List<Image> filters) {
 		this.images = images;
 		this.filters = filters;
 	}
-	public TransformImagesMapDot1D build(){
-		this.imageSize = images.get(0).getDataFloat().length;
+	public TransformImagesMapDot1DShort build(){
+		this.imageSize = images.get(0).getDataShort().length;
 		this.filterSize = filters.get(0).getDataFloat().length;
 		this.dimImageX = images.get(0).imageX;
 		this.dimImageY = images.get(0).imageY;
@@ -54,11 +55,11 @@ public class TransformImagesMapDot1D {
 		this.transformImageSize=dimTransSizeX*dimTransSizeY;
 		return this;
 	}
-	public TransformImagesMapDot1D setStrideX(int strideX){
+	public TransformImagesMapDot1DShort setStrideX(int strideX){
 		this.strideX = strideX;
 		return this;
 	}
-	public TransformImagesMapDot1D setStrideY(int strideY){
+	public TransformImagesMapDot1DShort setStrideY(int strideY){
 		this.strideY = strideY;
 		return this;
 	}
@@ -66,7 +67,7 @@ public class TransformImagesMapDot1D {
 		prepareOpenCl();
 		for (int batch=0 ;batch<images.size()/batchItems;batch++){
 			for (int i=0;i<batchItems;i++){
-				System.arraycopy(images.get(batch*batchItems+i).getDataFloat(), 0, allImages, i*(imageSize), imageSize);
+				System.arraycopy(images.get(batch*batchItems+i).getDataShort(), 0, allImages, i*(imageSize), imageSize);
 			}
 			memImages.copyHtoD();
 			transform.run(batchItems, 256);
@@ -78,8 +79,8 @@ public class TransformImagesMapDot1D {
 	}
 	private void contructTransformedImages(){
 		for (int i=0;i<batchItems;i++) {
-			Image image = new ImageFloat(dimTransSizeX,dimTransSizeY);
-			System.arraycopy(memTransformed.getSrc(), i*transformImageSize, image.getDataFloat(), 0, transformImageSize);
+			Image image = new ImageShort(dimTransSizeX,dimTransSizeY);
+			System.arraycopy(memTransformed.getSrc(), i*transformImageSize, image.getDataShort(), 0, transformImageSize);
 			transformedImages.add(image);
 		}
 	}
@@ -96,27 +97,29 @@ public class TransformImagesMapDot1D {
 		params.put("STRIDE_X", strideX);
 		params.put("STRIDE_Y", strideY);
 
-		program = new Program(Program.readResource("/dot/TransformImagesMapDot1DByCluster.c"),params);		
+		program = new Program(Program.readResource("/dot/TransformImagesMapDot1DByClusterShort.c"),params);		
 		
-		allImages = new float[imageSize*batchItems];
+		allImages = new short[imageSize*batchItems];
 		allFilters = new float[filterSize*filters.size()];
 		
 		for (int i=0;i<filters.size();i++){
 			System.arraycopy(filters.get(i).getDataFloat(), 0, allFilters, i*(filterSize), filterSize);
 		}
-		allTransformed = new float[transformImageSize*batchItems];
+		allTransformed = new short[transformImageSize*batchItems];
 		
-		memImages = new MemoryFloat(program);
+		memImages = new MemoryShort(program);
 		memImages.addReadOnly(allImages);
 		
 		memFilters = new MemoryFloat(program);
 		memFilters.addReadOnly(allFilters);
 
-		memTransformed = new MemoryFloat(program);
+		memTransformed = new MemoryShort(program);
 		memTransformed.addReadWrite(allTransformed);
 		
 		transform = new Kernel(program, "transform");
-		transform.setArguments(memImages,memFilters,memTransformed);
+		transform.setArgument(memImages,0);
+		transform.setArgument(memFilters,1);
+		transform.setArgument(memTransformed,2);
 	}
 	public void releaseOpenCl(){
 		memImages.release();

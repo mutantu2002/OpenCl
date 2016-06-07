@@ -33,7 +33,10 @@ __kernel void transform(__global float const *images,__global float const *filte
 				{
 					sum+= filters[centerIndex*FILTER_SIZE+index]*subImageBuffer[index];
 				}
-				transformedImages[transImagesOffset+trans++]=sum/FILTER_SIZE;
+				if(sum>0)
+					transformedImages[transImagesOffset+trans++]=sum;
+				else
+					transformedImages[transImagesOffset+trans++]=0;
 			}
 		}
 	}

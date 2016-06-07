@@ -1,4 +1,4 @@
-__kernel void transform(__global float const *images,__global float const *filters,__global float *transformedImages)
+__kernel void transform(__global short const *images,__global float const *filters,__global short *transformedImages)
 {
 	double sum;
 	int globalIndex=get_global_id(0);
@@ -14,7 +14,7 @@ __kernel void transform(__global float const *images,__global float const *filte
 	int centerIndex;
 	int transX=0;
 	int transY=0;
-	float subImageBuffer[FILTER_SIZE];
+	short subImageBuffer[FILTER_SIZE];
 
 	for(imageY=0;imageY<=DIM_IMAGE_Y-DIM_FILTER_Y;imageY+=STRIDE_Y)
 	{
