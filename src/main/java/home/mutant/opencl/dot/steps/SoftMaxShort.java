@@ -118,13 +118,51 @@ public class SoftMaxShort {
 		train.setArgument(memUpdates,2);
 		train.setArgument(memLabels,3);
 	}
+	public double test(List<Image> testImages, List<Integer> testLabels){
+		inputImages= new short[imageSize*testImages.size()];
+		for (int i = 0; i < testImages.size(); i++) {
+			System.arraycopy(testImages.get(i).getDataShort(), 0, inputImages, i*imageSize, imageSize);
+		}
+		inputLabels = new short[testLabels.size()];
+		for (int i = 0; i < inputLabels.length; i++) {
+			inputLabels[i]=testLabels.get(i).shortValue();
+		}
+		
+		memPerceptrons = new MemoryFloat(program);
+		memPerceptrons.addReadWrite(perceptrons);
+		
+		memImages = new MemoryShort(program);
+		memImages.addReadOnly(inputImages);
+		
+		memLabels = new MemoryShort(program);
+		memLabels.addReadOnly(inputLabels);
+		
+		train = new Kernel(program, "test");
+		train.setArgument(memPerceptrons,0);
+		train.setArgument(memImages,1);
+		train.setArgument(memLabels,2);
+
+		train.run(testImages.size(), noBatches);
+		program.finish();
+		memLabels.copyDtoH();
+		int count=0;
+		for (int i = 0; i < inputLabels.length; i++) {
+			if(inputLabels[i]==testLabels.get(i).shortValue())count++;
+		}
+		memPerceptrons.release();
+		memImages.release();
+		memLabels.release();
+		train.release();
+		program.release();
+		return ((double)count*100./testLabels.size());
+	}
+	
 	public void releaseOpenCl(){
 		memPerceptrons.release();
 		memImages.release();
 		memUpdates.release();
 		memLabels.release();
 		train.release();
-		program.release();
 	}
 	private void constructPerceptronImages(){
 		for (int i=0;i<noClasses;i++) {
