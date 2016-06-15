@@ -18,7 +18,7 @@ __kernel void train(__global const float *perceptrons, __global const short *ima
 			sum=0;
 			for(offset=0;offset<IMAGE_SIZE;offset++)
 			{
-				sum+=perceptrons[perceptron*(IMAGE_SIZE+1)+offset]*images[imagesOffset+batch*IMAGE_SIZE+offset];
+				sum+=perceptrons[perceptron*(IMAGE_SIZE+1)+offset]*images[imagesOffset+batch*IMAGE_SIZE+offset]/128.;
 			}
 			sum+=perceptrons[perceptron*(IMAGE_SIZE+1)+IMAGE_SIZE];
 			if(sum>maxForExp)
@@ -54,7 +54,7 @@ __kernel void train(__global const float *perceptrons, __global const short *ima
 		{
 			for(offset=0;offset<IMAGE_SIZE;offset++)
 			{
-				updates[updatesOffset+perceptron*(IMAGE_SIZE+1)+offset]+=-images[imagesOffset+batch*IMAGE_SIZE+offset]*activation[perceptron];
+				updates[updatesOffset+perceptron*(IMAGE_SIZE+1)+offset]+=-images[imagesOffset+batch*IMAGE_SIZE+offset]*activation[perceptron]/128.;
 			}
 			updates[updatesOffset+perceptron*(IMAGE_SIZE+1)+IMAGE_SIZE]+=-activation[perceptron];
 		}
@@ -75,7 +75,7 @@ __kernel void test(__global const float *perceptrons, __global const short *imag
 		sum=0;
 		for(offset=0;offset<IMAGE_SIZE;offset++)
 		{
-			sum+=perceptrons[perceptron*(IMAGE_SIZE+1)+offset]*images[imagesOffset+offset];
+			sum+=perceptrons[perceptron*(IMAGE_SIZE+1)+offset]*images[imagesOffset+offset]/128.;
 		}
 		sum+=perceptrons[perceptron*(IMAGE_SIZE+1)+IMAGE_SIZE];
 		if(sum>max)

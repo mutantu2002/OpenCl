@@ -14,9 +14,9 @@ public class RunDotProductShort {
 
 		long t0=System.currentTimeMillis();
 		int noIterations=30;
-		int noClusters = 9;
+		int noClusters = 36;
 		ObtainFiltersDotShort  of = new ObtainFiltersDotShort(MnistDatabase.trainImages.subList(0, 256*39*6)).
-				setDimFilterX(4).setDimFilterY(4).setNoClusters(noClusters).setNoIterations(noIterations).build();
+				setDimFilterX(23).setDimFilterY(23).setNoClusters(noClusters).setNoIterations(noIterations).build();
 		of.cluster();
 		long t=System.currentTimeMillis()-t0;
 		ResultFrame frame = new ResultFrame(1600, 800);
