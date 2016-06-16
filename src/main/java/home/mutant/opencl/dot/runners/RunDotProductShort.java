@@ -20,12 +20,12 @@ public class RunDotProductShort {
 
 		List<List<Image>> imagesByType= MnistDatabase.getImagesByType();
 		
-		int noIterations=30;
-		int noClusters = 40;
+		int noIterations=40;
+		int noClusters = 50;
 		List<Image> clusters = new ArrayList<>();
 		for (int i=0;i<10;i++){
 			ObtainFiltersDotShort  of = new ObtainFiltersDotShort(imagesByType.get(i)).
-					setDimFilterX(26).setDimFilterY(26).setNoClusters(noClusters).setNoIterations(noIterations).build();
+					setDimFilterX(25).setDimFilterY(25).setNoClusters(noClusters).setNoIterations(noIterations).build();
 			of.cluster();
 			of.constructNormalizedImageClusters();
 			clusters.addAll(of.getClusterImages());
@@ -35,7 +35,7 @@ public class RunDotProductShort {
 		ti.transform();
 		ResultFrame frame2 = new ResultFrame(1600, 800);
 		frame2.showImages(ti.getTransformedImages().subList(0, 16),16);
-		MaxIndexImage mii = new MaxIndexImage(ti.getTransformedImages(),MnistDatabase.testLabels.subList(0, 256*39),noClusters*9);
+		MaxIndexImage mii = new MaxIndexImage(ti.getTransformedImages(),MnistDatabase.testLabels.subList(0, 256*39),noClusters*16);
 		System.out.println(mii.rate);
 		
 		
