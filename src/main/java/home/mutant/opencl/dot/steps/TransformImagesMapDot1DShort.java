@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 
 import home.mutant.dl.models.Image;
+import home.mutant.dl.models.ImageFloat;
 import home.mutant.dl.models.ImageShort;
 import home.mutant.opencl.model.Kernel;
 import home.mutant.opencl.model.MemoryFloat;
@@ -77,14 +78,24 @@ public class TransformImagesMapDot1DShort {
 		}
 		releaseOpenCl();
 	}
+
 	private void contructTransformedImages(){
 		for (int i=0;i<batchItems;i++) {
 			Image image = new ImageShort(dimTransSizeX,dimTransSizeY);
-			System.arraycopy(memTransformed.getSrc(), i*transformImageSize, image.getDataShort(), 0, transformImageSize);
+			double max = -1*Double.MAX_VALUE;
+			double min = Double.MAX_VALUE;
+			int clusterOffset = dimTransSizeX*dimTransSizeY*i;
+			for (int j = 0; j < dimTransSizeX*dimTransSizeY; j++) {
+				if (allTransformed[clusterOffset+j]>max)max=allTransformed[clusterOffset+j];
+				if (allTransformed[clusterOffset+j]<min)min=allTransformed[clusterOffset+j];
+			}
+			max=255/(max-min);
+			for (int j = 0; j < dimTransSizeX*dimTransSizeY; j++) {
+				image.getDataShort()[j]=(short) ((allTransformed[clusterOffset+j]-min)*max);
+			}
 			transformedImages.add(image);
-		}
-	}
-	
+		}			
+	}	
 	private void prepareOpenCl(){
 		Map<String, Object> params = new HashMap<>();
 		params.put("IMAGE_SIZE", imageSize);
