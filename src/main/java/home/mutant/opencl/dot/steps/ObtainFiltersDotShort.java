@@ -21,7 +21,7 @@ public class ObtainFiltersDotShort {
 	List<Image> clusterImages = new ArrayList<>();
 	int noIterations=10;
 	int noClusters;
-	int batchItems = 256*39;
+	int batchItems = 256*3;
 	int strideX=1;
 	int strideY=1;
 	short[] inputImages;
