@@ -14,7 +14,7 @@ import home.mutant.opencl.model.MemoryShort;
 import home.mutant.opencl.model.Program;
 
 public class GradientClustering {
-	public  double learningRate = 0.0002;
+	public  double learningRate = 0.008;
 	List<Image> images;
 	
 	List<Image> perceptronImages = new ArrayList<>();
@@ -79,6 +79,7 @@ public class GradientClustering {
 	public void cluster(){
 		prepareOpenCl();
 		for (int iteration=0;iteration<noIterations;iteration++){
+			System.out.println(test());
 			train.run(noBatches, noBatches);
 			program.finish();
 	
@@ -88,16 +89,16 @@ public class GradientClustering {
 			memPerceptrons.copyHtoD();
 			Arrays.fill(perceptronsUpdates, 0);
 			memUpdates.copyHtoD();
-			learningRate*=0.999;
+			//learningRate*=0.999;
 		}
 		constructPerceptronImages();
 		releaseOpenCl();
 	}
 
 	private void reducePerceptrons() {
-		for(int offset=0;offset<(imageSize+1)*noPerceptrons;offset++){
+		for(int offset=0;offset<imageSize*noPerceptrons;offset++){
 			for(int batch=0;batch<noBatches;batch++){
-				perceptrons[offset]+=perceptronsUpdates[batch*(imageSize+1)*noPerceptrons+offset]*learningRate;
+				perceptrons[offset]+=perceptronsUpdates[batch*imageSize*noPerceptrons+offset]*learningRate;
 			}
 		}
 	}

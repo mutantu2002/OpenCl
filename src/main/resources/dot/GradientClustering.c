@@ -8,22 +8,25 @@ __kernel void train(__global const float *perceptrons, __global const short *ima
 	int offset;
 	int batch;
 	float activationOld[NO_PERCEPTRONS];
+	float activation;
 
 	for(batch=0;batch<BATCH_ITEMS;batch++)
 	{
-		for(perceptron=0;perceptron<NO_CLASSES;perceptron++)
+		for(perceptron=0;perceptron<NO_PERCEPTRONS;perceptron++)
 		{
 			sum=0;
 			for(offset=0;offset<IMAGE_SIZE;offset++)
 			{
-				sum+=perceptrons[perceptron*IMAGE_SIZE+offset]*images[imagesOffset+batch*IMAGE_SIZE+offset]/128.;
+				sum+=perceptrons[perceptron*IMAGE_SIZE+offset]*images[imagesOffset+batch*IMAGE_SIZE+offset]/256.;
 			}
-			activation=abs(sum-activationOld[perceptron]);
+			sum/=IMAGE_SIZE;
+			activation = sum-activationOld[perceptron];
+			//activation=fabs(activation);
 			activationOld[perceptron]=sum;
 			if(batch==0) continue;
 			for(offset=0;offset<IMAGE_SIZE;offset++)
 			{
-				updates[updatesOffset+perceptron*IMAGE_SIZE+offset]+=-images[imagesOffset+batch*IMAGE_SIZE+offset]*activation;
+				updates[updatesOffset+perceptron*IMAGE_SIZE+offset]+=-images[imagesOffset+batch*IMAGE_SIZE+offset]*activation/256.;
 			}
 		}
 	}
