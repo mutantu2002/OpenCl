@@ -14,7 +14,7 @@ import home.mutant.opencl.model.MemoryShort;
 import home.mutant.opencl.model.Program;
 
 public class GradientClustering {
-	public  double learningRate = 0.008;
+	public  double learningRate = 0.00001;
 	List<Image> images;
 	
 	List<Image> perceptronImages = new ArrayList<>();
@@ -58,6 +58,7 @@ public class GradientClustering {
 
 		perceptrons = new float[imageSize*noPerceptrons];
 		randomizePerceptrons();
+		subtractMeanPerceptrons();
 		perceptronsUpdates = new float[imageSize*noPerceptrons*noBatches];
 		
 		activations = new float[images.size()*noPerceptrons];
@@ -67,14 +68,22 @@ public class GradientClustering {
 		forward.run(images.size(), noBatches);
 		program.finish();
 		memActivations.copyDtoH();
-		double d=0;
-		for (int im=0;im<images.size()-1;im++){
+		double variance=0;
+		double mean=0;
+		for (int im=0;im<images.size();im++){
 			for(int p=0;p<noPerceptrons;p++){
-				d+=(activations[im*noPerceptrons+p]-activations[(im+1)*noPerceptrons+p])*(activations[im*noPerceptrons+p]-activations[(im+1)*noPerceptrons+p]);
+				mean+=activations[im*noPerceptrons+p];
 			}
 		}
-		return d;
+		mean/=images.size();
+		System.out.println("Mean "+mean);
 
+		for (int im=0;im<images.size();im++){
+			for(int p=0;p<noPerceptrons;p++){
+				variance+=(activations[im*noPerceptrons+p]-mean)*(activations[im*noPerceptrons+p]-mean);
+			}
+		}
+		return variance/images.size();
 	}
 	public void cluster(){
 		prepareOpenCl();
@@ -86,6 +95,7 @@ public class GradientClustering {
 			//System.out.println(iteration);
 			memUpdates.copyDtoH();
 			reducePerceptrons();
+			subtractMeanPerceptrons();
 			memPerceptrons.copyHtoD();
 			Arrays.fill(perceptronsUpdates, 0);
 			memUpdates.copyHtoD();
@@ -102,7 +112,26 @@ public class GradientClustering {
 			}
 		}
 	}
-
+	private void subtractMeanPerceptrons(){
+		for (int i=0;i<noPerceptrons;i++){
+			int clusterOffset = imageSize*i;
+			double mean=0;
+			double lenght=0;
+			for(int j=0;j<imageSize;j++){
+				mean+=perceptrons[clusterOffset+j];
+			}
+			
+			mean/=imageSize;
+			for(int j=0;j<imageSize;j++){
+				perceptrons[clusterOffset+j]-=mean;
+				lenght+=perceptrons[clusterOffset+j]*perceptrons[clusterOffset+j];
+			}
+			lenght = Math.sqrt(lenght);
+			for(int j=0;j<imageSize;j++){
+				perceptrons[clusterOffset+j]/=lenght;
+			}
+		}
+	}
 	private void randomizePerceptrons() {
 		for (int i = 0; i < perceptrons.length; i++) {
 			perceptrons[i] = (float) (1-2*Math.random());

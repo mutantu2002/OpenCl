@@ -15,7 +15,7 @@ public class RunGradientClustering {
  		MnistDatabase.loadImages();
  		List<List<Image>> imagesByType= MnistDatabase.getImagesByType();
 		long t0=System.currentTimeMillis();
-		GradientClustering gc = new GradientClustering(imagesByType.get(0),1).setNoIterations(6000).build();
+		GradientClustering gc = new GradientClustering(imagesByType.get(0),1).setNoIterations(600).build();
 		gc.cluster();
 		long t=System.currentTimeMillis()-t0;
 		ResultFrame frame = new ResultFrame(1600, 800);
