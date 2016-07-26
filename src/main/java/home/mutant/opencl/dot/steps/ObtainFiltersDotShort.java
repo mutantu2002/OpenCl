@@ -30,6 +30,7 @@ public class ObtainFiltersDotShort {
 	int stridePoolingX = 2;
 	int stridePoolingY = 2;
 	Program program;
+	boolean randomizeFromData = false;
 	
 	MemoryFloat memClusters;
 	MemoryShort memImages;
@@ -47,7 +48,10 @@ public class ObtainFiltersDotShort {
 		inputImages= new short[imageSize*batchItems];
 		
 		clustersCenters = new float[dimFilterX*dimFilterY*noClusters];
-		randomizeClusters();
+		if(randomizeFromData)
+			randomizeClustersFromData();
+		else
+			randomizeClusters();
 		subtractMeanClusters();
 		clustersUpdates = new float[(dimFilterX*dimFilterY+1)*noClusters*batchItems];
 		return this;
@@ -64,6 +68,12 @@ public class ObtainFiltersDotShort {
 		this.dimFilterY = dimFilterY;
 		return this;
 	}
+	
+	public ObtainFiltersDotShort setRandomizeFromData(boolean randomizeFromData){
+		this.randomizeFromData = randomizeFromData;
+		return this;
+	}
+	
 	public void cluster(){
 		prepareOpenCl();
 		for (int iteration=0;iteration<noIterations;iteration++){
@@ -135,8 +145,7 @@ public class ObtainFiltersDotShort {
 			clustersCenters[i] = (float) (Math.random()*256);
 		}
 	}
-	@SuppressWarnings("unused")
-	private void randomizeClusters2() {
+	private void randomizeClustersFromData() {
 		List<Image> filters = new ArrayList<>();
 		int dimImage = (int)Math.sqrt(imageSize);
 		while(filters.size()<noClusters) {
@@ -149,19 +158,22 @@ public class ObtainFiltersDotShort {
 			}
 		}
 		for (int i = 0; i < noClusters; i++) {
-			System.arraycopy(filters.get(i).getDataFloat(), 0, clustersCenters, i*dimFilterX*dimFilterY, dimFilterX*dimFilterY);
+			for(int j = 0; j < dimFilterX*dimFilterY; j++)
+			{
+				clustersCenters[i*dimFilterX*dimFilterY+j]=filters.get(i).getDataShort()[j];
+			}
 		}
 	}
 	private boolean okToAdd(List<Image> filters, Image newFilter){
 		for (Image image : filters) {
-			if(d(image,newFilter)<100) return false;
+			if(d(image,newFilter)<1000) return false;
 		}
 		return true;
 	}
 	private float d(Image i1, Image i2){
 		double d=0;
-		for (int i = 0; i < i1.getDataFloat().length; i++) {
-			d+=(i1.getDataFloat()[i] - i2.getDataFloat()[i])*(i1.getDataFloat()[i] - i2.getDataFloat()[i]);
+		for (int i = 0; i < i1.getDataShort().length; i++) {
+			d+=(i1.getDataShort()[i] - i2.getDataShort()[i])*(i1.getDataShort()[i] - i2.getDataShort()[i]);
 		}
 		return (float) Math.sqrt(d);
 	}
