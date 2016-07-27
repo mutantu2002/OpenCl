@@ -31,6 +31,7 @@ public class ObtainFiltersDotShort {
 	int stridePoolingY = 2;
 	Program program;
 	boolean randomizeFromData = false;
+	boolean initializeMiddleImage = false;
 	
 	MemoryFloat memClusters;
 	MemoryShort memImages;
@@ -71,6 +72,11 @@ public class ObtainFiltersDotShort {
 	
 	public ObtainFiltersDotShort setRandomizeFromData(boolean randomizeFromData){
 		this.randomizeFromData = randomizeFromData;
+		return this;
+	}
+
+	public ObtainFiltersDotShort setInitializeMiddleImage(boolean initializeMiddleImage){
+		this.initializeMiddleImage = initializeMiddleImage;
 		return this;
 	}
 	
@@ -150,8 +156,8 @@ public class ObtainFiltersDotShort {
 		int dimImage = (int)Math.sqrt(imageSize);
 		while(filters.size()<noClusters) {
 			Image initCluster = images.get((int) (Math.random()*images.size()));
-			int x=strideX*((int) (Math.random()*((dimImage-dimFilterX)/strideX)));
-			int y=strideY*((int) (Math.random()*((dimImage-dimFilterY)/strideY)));
+			int x=strideX*((int) (getInitOffset()*((dimImage-dimFilterX)/strideX)));
+			int y=strideY*((int) (getInitOffset()*((dimImage-dimFilterY)/strideY)));
 			Image filter = initCluster.extractImage(x, y, dimFilterX, dimFilterY);
 			if (okToAdd(filters, filter)){
 				filters.add(filter);
@@ -163,6 +169,10 @@ public class ObtainFiltersDotShort {
 				clustersCenters[i*dimFilterX*dimFilterY+j]=filters.get(i).getDataShort()[j];
 			}
 		}
+	}
+	private double getInitOffset(){
+		if(initializeMiddleImage)return 0.5;
+		return Math.random();
 	}
 	private boolean okToAdd(List<Image> filters, Image newFilter){
 		for (Image image : filters) {

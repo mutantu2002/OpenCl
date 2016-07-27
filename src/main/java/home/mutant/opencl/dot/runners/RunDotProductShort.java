@@ -19,13 +19,13 @@ public class RunDotProductShort {
 
 		List<List<Image>> imagesByType= MnistDatabase.getImagesByType();
 		
-		int noIterations=40;
+		int noIterations=10;
 		int noClusters = 150;
 		List<Image> clusters = new ArrayList<>();
 		for (int i=0;i<10;i++){
 			ObtainFiltersDotShort  of = new ObtainFiltersDotShort(imagesByType.get(i)).
 					setDimFilterX(25).setDimFilterY(25).setNoClusters(noClusters)
-					.setNoIterations(noIterations).setRandomizeFromData(true).build();
+					.setNoIterations(noIterations).setRandomizeFromData(true).setInitializeMiddleImage(true).build();
 			of.cluster();
 			of.constructNormalizedImageClusters();
 			clusters.addAll(of.getClusterImages());
