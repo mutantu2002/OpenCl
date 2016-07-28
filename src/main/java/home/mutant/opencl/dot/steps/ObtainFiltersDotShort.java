@@ -32,6 +32,7 @@ public class ObtainFiltersDotShort {
 	Program program;
 	boolean randomizeFromData = false;
 	boolean initializeMiddleImage = false;
+	int minDistanceInitClusters = 1000;
 	
 	MemoryFloat memClusters;
 	MemoryShort memImages;
@@ -80,6 +81,10 @@ public class ObtainFiltersDotShort {
 		return this;
 	}
 	
+	public ObtainFiltersDotShort setMinDistanceInitClusters(int minDistanceInitClusters) {
+		this.minDistanceInitClusters = minDistanceInitClusters;
+		return this;
+	}
 	public void cluster(){
 		prepareOpenCl();
 		for (int iteration=0;iteration<noIterations;iteration++){
@@ -160,6 +165,7 @@ public class ObtainFiltersDotShort {
 			int y=strideY*((int) (getInitOffset()*((dimImage-dimFilterY)/strideY)));
 			Image filter = initCluster.extractImage(x, y, dimFilterX, dimFilterY);
 			if (okToAdd(filters, filter)){
+				//System.out.println(filters.size());
 				filters.add(filter);
 			}
 		}
@@ -176,7 +182,7 @@ public class ObtainFiltersDotShort {
 	}
 	private boolean okToAdd(List<Image> filters, Image newFilter){
 		for (Image image : filters) {
-			if(d(image,newFilter)<1000) return false;
+			if(d(image,newFilter)<minDistanceInitClusters) return false;
 		}
 		return true;
 	}
